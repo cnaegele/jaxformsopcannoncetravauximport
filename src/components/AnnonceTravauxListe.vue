@@ -37,7 +37,19 @@
       </v-card>
     </v-dialog>
 
-    <v-card>
+    <!-- Pendant le chargement -->
+      <div v-if="jfFormsListeDataLoading" class="d-flex justify-center align-center" style="min-height: 200px;">
+      <div class="text-center">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          :size="40"
+        ></v-progress-circular>
+        <p class="mt-4">Chargement des données en cours...</p>
+      </div>
+    </div>
+   
+    <v-card v-if="jfFormsListeLoaded">
       <v-card-title class="d-flex align-center pe-2">
         <v-icon icon="mdi-file-document-multiple" class="me-2"></v-icon>
         Liste des demandes
@@ -108,7 +120,7 @@
 import type { JFFormsListe, ApiResponseJFFL, Row } from '@/axioscalls.js'
 import type { JFFormsData, ApiResponseJFFD } from '@/axioscalls.js'
 
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getJFFormsListe, getListeFieldValue } from '@/axioscalls.js'
 import { getJFFormsData, getDataContentByGroupAndVarId } from '@/axioscalls.js'
 
@@ -129,13 +141,15 @@ interface Props {
   ssPageData?: string
 }
 const props = withDefaults(defineProps<Props>(), {
-  pagesize: 10,
+  pagesize: 100,
   offset: 0,
   ssServer: '',
   ssPageListe: '/goeland/jaxforms/axios/jfsearch_annoncetravaux.php',
   ssPageData: '/goeland/jaxforms/axios/jfdata_annoncetravaux.php'
 })
 
+const jfFormsListeDataLoading = ref<boolean>(false);
+const jfFormsListeLoaded = ref<boolean>(false);
 let jfFormsListe: JFFormsListe
 const pageSize = ref<number>(props.pagesize)
 const hasNext = ref<boolean>(false)
@@ -146,8 +160,15 @@ const offset = ref<number>(props.offset)
 const affiche = ref<string>('')
 const affFormsListe = ref<GoFormsListe[]>([])
 
+onMounted(() => {
+  loadData();
+})
+
+const loadData = async () => {
+jfFormsListeDataLoading.value = true
 const jsonParamsL: string = `{"pagesize":${pageSize.value},"offset":${offset.value}}`
 const responseL: ApiResponseJFFL = await getJFFormsListe(props.ssServer, props.ssPageListe, jsonParamsL)
+jfFormsListeLoaded.value = true
 console.log(responseL.data)
 if (responseL.data !== undefined) {
   jfFormsListe = responseL.data
@@ -187,7 +208,9 @@ if (responseL.data !== undefined) {
       }
     }
   }
+  jfFormsListeDataLoading.value = false
   console.log(affFormsListe.value)
+}
 }
 
 const search = ref('')
@@ -205,6 +228,9 @@ const headers = [
 
 const formatDate = (dateString?: string) => {
   if (dateString !== undefined) {
+    if (dateString === '') {
+      return ''
+    }
     const date = new Date(dateString)
     return date.toLocaleDateString('fr-CH', {
       day: '2-digit',

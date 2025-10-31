@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-main>
-      <suspense><AnnonceTravauxListe :ssServer="ssServer"></AnnonceTravauxListe></suspense>
+      <AnnonceTravauxListe :ssServer="ssServer"></AnnonceTravauxListe>
     </v-main>
   </v-app>
 </template>
