@@ -6,14 +6,10 @@
         <v-card-title class="d-flex align-center pe-2">
           <v-icon icon="mdi-file-document" class="me-2"></v-icon>
           Détails de la demande
-          
+
           <v-spacer></v-spacer>
-          
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            @click="dialogFormsData = false"
-          ></v-btn>
+
+          <v-btn icon="mdi-close" variant="text" @click="dialogFormsData = false"></v-btn>
         </v-card-title>
 
         <v-divider></v-divider>
@@ -26,11 +22,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="primary"
-            variant="text"
-            @click="dialogFormsData = false"
-          >
+          <v-btn color="primary" variant="text" @click="dialogFormsData = false">
             Fermer
           </v-btn>
         </v-card-actions>
@@ -38,21 +30,17 @@
     </v-dialog>
 
     <!-- Pendant le chargement -->
-      <div v-if="jfFormsListeDataLoading" class="d-flex justify-center align-center" style="min-height: 200px;">
+    <div v-if="jfFormsListeDataLoading" class="d-flex justify-center align-center" style="min-height: 200px;">
       <div class="text-center">
-        <v-progress-circular
-          indeterminate
-          color="primary"
-          :size="40"
-        ></v-progress-circular>
+        <v-progress-circular indeterminate color="primary" :size="40"></v-progress-circular>
         <p class="mt-4">Chargement des données en cours...</p>
       </div>
     </div>
-   
+
     <v-card v-if="jfFormsListeLoaded">
       <v-card-title class="d-flex align-center pe-2">
         <v-icon icon="mdi-file-document-multiple" class="me-2"></v-icon>
-        Liste des demandes
+        Liste des annonces de travaux pas importées dans goéland
 
         <v-spacer></v-spacer>
 
@@ -119,10 +107,12 @@
 <script setup lang="ts">
 import type { JFFormsListe, ApiResponseJFFL, Row } from '@/axioscalls.js'
 import type { JFFormsData, ApiResponseJFFD } from '@/axioscalls.js'
+import type { ApiResponseNumber } from '@/axioscalls.js'
 
 import { ref, onMounted } from 'vue'
 import { getJFFormsListe, getListeFieldValue } from '@/axioscalls.js'
 import { getJFFormsData, getDataContentByGroupAndVarId } from '@/axioscalls.js'
+import { getIdAffaireGoeland } from '@/axioscalls.js'
 
 interface GoFormsListe {
   id?: string
@@ -139,13 +129,16 @@ interface Props {
   ssServer?: string
   ssPageListe?: string
   ssPageData?: string
+  ssPageIdAffGo?: string
+
 }
 const props = withDefaults(defineProps<Props>(), {
   pagesize: 100,
   offset: 0,
   ssServer: '',
   ssPageListe: '/goeland/jaxforms/axios/jfsearch_annoncetravaux.php',
-  ssPageData: '/goeland/jaxforms/axios/jfdata_annoncetravaux.php'
+  ssPageData: '/goeland/jaxforms/axios/jfdata_annoncetravaux.php',
+  ssPageIdAffGo: '/goeland/jaxforms/axios/idaffaire_par_idjaxforms.php'
 })
 
 const jfFormsListeDataLoading = ref<boolean>(false);
@@ -165,52 +158,58 @@ onMounted(() => {
 })
 
 const loadData = async () => {
-jfFormsListeDataLoading.value = true
-const jsonParamsL: string = `{"pagesize":${pageSize.value},"offset":${offset.value}}`
-const responseL: ApiResponseJFFL = await getJFFormsListe(props.ssServer, props.ssPageListe, jsonParamsL)
-jfFormsListeLoaded.value = true
-console.log(responseL.data)
-if (responseL.data !== undefined) {
-  jfFormsListe = responseL.data
-  pageSize.value = jfFormsListe.info.pageSize
-  hasNext.value = jfFormsListe.info.hasNext
-  totalSize.value = jfFormsListe.info.totalSize
-  size.value = jfFormsListe.info.size
-  offset.value = jfFormsListe.info.offset
-  for (let i = 0; i < size.value; i++) {
-    const therow: Row | undefined = jfFormsListe.row[i]
-    if (therow !== undefined) {
-      const idForms: string | undefined = getListeFieldValue(therow, 'AccessID')
-      if (idForms !== undefined) {
-        const jsonParamsD: string = `{"idformselement":"${idForms}"}`
-        const responseD: ApiResponseJFFD = await getJFFormsData(props.ssServer, props.ssPageData, jsonParamsD)
-        const jfFormsData: JFFormsData | undefined = responseD.data
-        let localisationRue: string | number | undefined
-        let localisationNumRue: string | number | undefined
-        let descriptionTravaux: string | number | undefined
-        let emailDemandeur: string | number | undefined
-        if (jfFormsData !== undefined) {
-          localisationRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_rue') ?? '?'
-          localisationNumRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_numeroDeRue') ?? ''
-          descriptionTravaux = getDataContentByGroupAndVarId(jfFormsData, 'information_projet', 'travaux_description') ?? '?'
-          emailDemandeur = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_email_proprietaire') ?? '?'
+  jfFormsListeDataLoading.value = true
+  const jsonParamsL: string = `{"pagesize":${pageSize.value},"offset":${offset.value}}`
+  const responseL: ApiResponseJFFL = await getJFFormsListe(props.ssServer, props.ssPageListe, jsonParamsL)
+  jfFormsListeLoaded.value = true
+  console.log(responseL.data)
+  if (responseL.data !== undefined) {
+    jfFormsListe = responseL.data
+    pageSize.value = jfFormsListe.info.pageSize
+    hasNext.value = jfFormsListe.info.hasNext
+    totalSize.value = jfFormsListe.info.totalSize
+    size.value = jfFormsListe.info.size
+    offset.value = jfFormsListe.info.offset
+    for (let i = 0; i < size.value; i++) {
+      const therow: Row | undefined = jfFormsListe.row[i]
+      if (therow !== undefined) {
+        const idForms: string | undefined = getListeFieldValue(therow, 'AccessID')
+        if (idForms !== undefined) {
+          //Si une affaire goéland existe pour cet idForms, on affiche pas la ligne
+          const responseIdGo: ApiResponseNumber = await getIdAffaireGoeland(props.ssServer, props.ssPageIdAffGo, idForms)
+          if (responseIdGo.data === 0 || responseIdGo.data === undefined || responseIdGo.data === null) {
+
+
+            const jsonParamsD: string = `{"idformselement":"${idForms}"}`
+            const responseD: ApiResponseJFFD = await getJFFormsData(props.ssServer, props.ssPageData, jsonParamsD)
+            const jfFormsData: JFFormsData | undefined = responseD.data
+            let localisationRue: string | number | undefined
+            let localisationNumRue: string | number | undefined
+            let descriptionTravaux: string | number | undefined
+            let emailDemandeur: string | number | undefined
+            if (jfFormsData !== undefined) {
+              localisationRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_rue') ?? '?'
+              localisationNumRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_numeroDeRue') ?? ''
+              descriptionTravaux = getDataContentByGroupAndVarId(jfFormsData, 'information_projet', 'travaux_description') ?? '?'
+              emailDemandeur = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_email_proprietaire') ?? '?'
+            }
+            //console.log(responseD)
+            const goFormsListe: GoFormsListe = {
+              id: getListeFieldValue(therow, 'AccessID') ?? '?',
+              created: getListeFieldValue(therow, 'Created') ?? '',
+              lastupdate: getListeFieldValue(therow, 'LastUpdate'),
+              localisation: `${localisationRue?.toString()} ${localisationNumRue?.toString()}`,
+              descriptiontravaux: descriptionTravaux?.toString(),
+              emaildemandeur: emailDemandeur?.toString()
+            }
+            affFormsListe.value.push(goFormsListe)
+          }
         }
-        //console.log(responseD)
-        const goFormsListe: GoFormsListe = {
-          id: getListeFieldValue(therow, 'AccessID') ?? '?',
-          created: getListeFieldValue(therow, 'Created') ?? '',
-          lastupdate: getListeFieldValue(therow, 'LastUpdate'),
-          localisation: `${localisationRue?.toString()} ${localisationNumRue?.toString()}`,
-          descriptiontravaux: descriptionTravaux?.toString(),
-          emaildemandeur: emailDemandeur?.toString()
-        }
-        affFormsListe.value.push(goFormsListe)
       }
     }
+    jfFormsListeDataLoading.value = false
+    console.log(affFormsListe.value)
   }
-  jfFormsListeDataLoading.value = false
-  console.log(affFormsListe.value)
-}
 }
 
 const search = ref('')

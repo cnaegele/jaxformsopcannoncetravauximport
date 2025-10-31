@@ -130,7 +130,6 @@
 import type { JFFormsData, ApiResponseJFFD, Group } from '@/axioscalls.js'
 import { getJFFormsData, getDataContentByGroupAndVarId } from '@/axioscalls.js'
 import { ref, onMounted } from 'vue'
-import { de } from 'vuetify/locale'
 
 interface Props {
   id: string

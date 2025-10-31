@@ -67,6 +67,11 @@ export interface ApiResponseJFFD {
     message?: string;
     data?: JFFormsData;
 }
+export interface ApiResponseNumber {
+    success?: boolean;
+    message?: string;
+    data?: number;
+}
 
 // Interface générique pour les réponses API
 export interface ApiResponse<T> {
@@ -115,7 +120,6 @@ export async function getJFFormsListe(server: string = '', page: string, jsonPar
 
 export async function getJFFormsData(server: string = '', page: string, jsonParams: string = '{}'): Promise<ApiResponseJFFD> {
     const urlfd: string = `${server}${page}`
-    console.log(`${urlfd}?jsonparams=${jsonParams}`)
     const params = new URLSearchParams([['jsonparams', jsonParams]])
     try {
         const response: AxiosResponse<JFFormsData> = await axios.get(urlfd, { params })
@@ -126,6 +130,19 @@ export async function getJFFormsData(server: string = '', page: string, jsonPara
         return traiteAxiosError(error as AxiosError)
     }
 }
+
+export async function getIdAffaireGoeland(server: string = '', page: string, idJaxForms: string) : Promise<ApiResponseNumber> {
+    const urlig: string = `${server}${page}`
+    const params = new URLSearchParams([['idjaxforms', idJaxForms]])
+    try {
+        const response: ApiResponseNumber = await axios.get(urlig, { params })
+        console.log(response)
+        return response
+    } catch (error) {
+        return traiteAxiosError(error as AxiosError)
+    }
+}
+
 
 function traiteAxiosError<T>(error: AxiosError): ApiResponse<T> {
     let msgErr: string = ''
