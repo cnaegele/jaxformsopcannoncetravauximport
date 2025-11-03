@@ -304,7 +304,6 @@ const receptionDataForms = (receptedJsonDataForms: string) => {
 }
 
 const prepareImport = () => {
-  console.log(`data Forms à importer \njson: ${jsonDataForms.value}`)
   dialogFormsData.value = false
   dialogFormsImport.value = true
 }

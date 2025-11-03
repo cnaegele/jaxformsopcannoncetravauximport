@@ -8,6 +8,8 @@ interface Demandeur {
     localite?: string
     email?: string
     telephone?: string
+    idacteurGo?: number
+    nomActeurGo?: string
 }
 export interface Fichier {
     idjf: string
@@ -15,14 +17,20 @@ export interface Fichier {
     mimetype: string
     size: number
     sha256: string
+    idDocGo: number
 }
 
 export interface DataForms {
     idDemande: string
     localisationRue?: string
     localisationNumero?: string
+    idRueGo?: number
+    idAdresseGo?: number
+    rueAdresseNomAffaire?: string
     numeroECA?: string
+    idsBatimentGo?: string
     parcelle?: string
+    idsParcelleGo?: string
     descriptionTravaux?: string
     demandeur: Demandeur 
     fichiers: Fichier[]

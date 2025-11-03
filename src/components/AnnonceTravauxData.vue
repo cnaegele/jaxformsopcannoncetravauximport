@@ -335,7 +335,7 @@ const loadData = async () => {
           if (idfile.trim() !== '') {
             nombreFichiers.value++
             idsfichier.value.push(idf.toString())
-            const tmpFichier: Fichier = {idjf: idf.toString(), b64content: '', mimetype: '', size: 0, sha256: '' }
+            const tmpFichier: Fichier = {idjf: idf.toString(), b64content: '', mimetype: '', size: 0, sha256: '', idDocGo: 0 }
             dataForms.fichiers.push(tmpFichier)
           }
         }
