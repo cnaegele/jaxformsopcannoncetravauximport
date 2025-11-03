@@ -12,6 +12,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AnnonceTravauxData: typeof import('./src/components/AnnonceTravauxData.vue')['default']
+    AnnonceTravauxImport: typeof import('./src/components/AnnonceTravauxImport.vue')['default']
     AnnonceTravauxListe: typeof import('./src/components/AnnonceTravauxListe.vue')['default']
+    CallerInfo: typeof import('./src/components/CallerInfo.vue')['default']
+    CallerIsInGroup: typeof import('./src/components/CallerIsInGroup.vue')['default']
   }
 }

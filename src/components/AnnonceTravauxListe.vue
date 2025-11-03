@@ -1,110 +1,160 @@
 <template>
-  <v-container>
-    <!-- Dialog pour afficher les détails -->
-    <v-dialog v-model="dialogFormsData" max-width="1200px">
-      <v-card>
-        <v-card-title class="d-flex align-center pe-2">
-          <v-icon icon="mdi-file-document" class="me-2"></v-icon>
-          Détails de la demande
-
-          <v-spacer></v-spacer>
-
-          <v-btn icon="mdi-close" variant="text" @click="dialogFormsData = false"></v-btn>
-        </v-card-title>
-
-        <v-divider></v-divider>
-
-        <v-card-text class="pa-4">
-          <AnnonceTravauxData v-if="selectedItem" :id="selectedItem.id" :ssServer="ssServer" />
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" variant="text" @click="dialogFormsData = false">
-            Fermer
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- Pendant le chargement -->
-    <div v-if="jfFormsListeDataLoading" class="d-flex justify-center align-center" style="min-height: 200px;">
-      <div class="text-center">
-        <v-progress-circular indeterminate color="primary" :size="40"></v-progress-circular>
-        <p class="mt-4">Chargement des données en cours...</p>
-      </div>
-    </div>
-
-    <v-card v-if="jfFormsListeLoaded">
-      <v-card-title class="d-flex align-center pe-2">
-        <v-icon icon="mdi-file-document-multiple" class="me-2"></v-icon>
-        Liste des annonces de travaux pas importées dans goéland
+  <CallerInfo :ssServer="ssServer" @callerinfo="receptionCallerInfo"></CallerInfo>
+  <v-app>
+    <v-main>
+      <v-app-bar color="primary" prominent density="compact" app>
+        <v-toolbar-title>Annonces travaux. Import demande jaxForms vers affaire goéland</v-toolbar-title>
 
         <v-spacer></v-spacer>
+        <div style="position: absolute; right: 16px;">
+          Utilisateur: {{ callerInformation?.prenom }} {{ callerInformation?.nom }} ({{
+            callerInformation?.login }}) - {{ callerInformation?.unite }}
+        </div>
+      </v-app-bar>
 
-        <v-text-field v-model="search" density="compact" label="Rechercher" prepend-inner-icon="mdi-magnify"
-          variant="outlined" flat hide-details single-line clearable></v-text-field>
-      </v-card-title>
+      <v-container>
+        <!-- Dialog pour afficher les détails -->
+        <v-dialog v-model="dialogFormsData" max-width="1200px">
+          <v-card>
+            <v-card-title class="d-flex align-center pe-2">
+              <v-icon icon="mdi-file-document" class="me-2"></v-icon>
+              Détails de la demande
 
-      <v-divider></v-divider>
+              <v-spacer></v-spacer>
 
-      <v-data-table :headers="headers" :items="affFormsListe" :search="search" item-value="id"
-        items-per-page-text="Lignes par page" :items-per-page="10">
-        <template v-slot:item.localisation="{ item }">
-          <div class="text-truncate" style="max-width: 250px;">
-            <v-icon icon="mdi-map-marker" size="small" class="me-1"></v-icon>
-            {{ item.localisation }}
+              <v-btn icon="mdi-close" variant="text" @click="dialogFormsData = false"></v-btn>
+            </v-card-title>
+
+            <v-divider></v-divider>
+
+            <v-card-text class="pa-4">
+              <AnnonceTravauxData v-if="selectedItem" :id="selectedItem.id" :ssServer="ssServer"
+                @dataForms="receptionDataForms" />
+            </v-card-text>
+
+            <v-divider></v-divider>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" variant="text" @click="prepareImport()">
+                Préparation import
+              </v-btn>
+              <v-btn color="primary" variant="text" @click="dialogFormsData = false" class="ml-2">
+                Fermer
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- Dialog pour préparation import -->
+        <v-dialog v-model="dialogFormsImport" max-width="1200px">
+          <v-card>
+            <v-card-title class="d-flex align-center pe-2">
+              <v-icon icon="mdi-file-document" class="me-2"></v-icon>
+              Préparation import de la demande
+
+              <v-spacer></v-spacer>
+
+              <v-btn icon="mdi-close" variant="text" @click="dialogFormsImport = false"></v-btn>
+            </v-card-title>
+
+            <v-divider></v-divider>
+
+            <v-card-text class="pa-4">
+              <AnnonceTravauxImport :jsonDataForms="jsonDataForms" :ssServer="ssServer" />
+            </v-card-text>
+
+            <v-divider></v-divider>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" variant="text" @click="dialogFormsImport = false">
+                Fermer sans importer
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- Pendant le chargement -->
+        <div v-if="jfFormsListeDataLoading" class="d-flex justify-center align-center" style="min-height: 200px;">
+          <div class="text-center">
+            <v-progress-circular indeterminate color="primary" :size="40"></v-progress-circular>
+            <p class="mt-4">Chargement des données en cours...</p>
           </div>
-        </template>
+        </div>
 
-        <template v-slot:item.descriptiontravaux="{ item }">
-          <v-tooltip location="top">
-            <template v-slot:activator="{ props }">
-              <div v-bind="props" class="text-truncate" style="max-width: 300px;">
-                {{ item.descriptiontravaux }}
+        <v-card v-if="jfFormsListeLoaded">
+          <v-card-title class="d-flex align-center pe-2">
+            <v-icon icon="mdi-file-document-multiple" class="me-2"></v-icon>
+            Liste des annonces de travaux pas importées dans goéland
+
+            <v-spacer></v-spacer>
+
+            <v-text-field v-model="search" density="compact" label="Rechercher" prepend-inner-icon="mdi-magnify"
+              variant="outlined" flat hide-details single-line clearable></v-text-field>
+          </v-card-title>
+
+          <v-divider></v-divider>
+
+          <v-data-table :headers="headers" :items="affFormsListe" :search="search" item-value="id"
+            items-per-page-text="Lignes par page" :items-per-page="10">
+            <template v-slot:item.localisation="{ item }">
+              <div class="text-truncate" style="max-width: 250px;">
+                <v-icon icon="mdi-map-marker" size="small" class="me-1"></v-icon>
+                {{ item.localisation }}
               </div>
             </template>
-            <span>{{ item.descriptiontravaux }}</span>
-          </v-tooltip>
-        </template>
 
-        <template v-slot:item.created="{ item }">
-          <v-chip size="small" color="blue-grey" variant="tonal">
-            {{ formatDate(item.created) }}
-          </v-chip>
-        </template>
+            <template v-slot:item.descriptiontravaux="{ item }">
+              <v-tooltip location="top">
+                <template v-slot:activator="{ props }">
+                  <div v-bind="props" class="text-truncate" style="max-width: 300px;">
+                    {{ item.descriptiontravaux }}
+                  </div>
+                </template>
+                <span>{{ item.descriptiontravaux }}</span>
+              </v-tooltip>
+            </template>
 
-        <template v-slot:item.lastupdate="{ item }">
-          <v-chip size="small" color="green" variant="tonal">
-            {{ formatDate(item.lastupdate) }}
-          </v-chip>
-        </template>
+            <template v-slot:item.created="{ item }">
+              <v-chip size="small" color="blue-grey" variant="tonal">
+                {{ formatDate(item.created) }}
+              </v-chip>
+            </template>
 
-        <template v-slot:item.emaildemandeur="{ item }">
-          <a v-if="item.emaildemandeur !== '?'" :href="`mailto:${item.emaildemandeur}`" class="text-decoration-none">
-            <v-icon icon="mdi-email" size="small" class="me-1"></v-icon>
-            {{ item.emaildemandeur }}
-          </a>
-          <span v-else class="text-grey">{{ item.emaildemandeur }}</span>
-        </template>
+            <template v-slot:item.lastupdate="{ item }">
+              <v-chip size="small" color="green" variant="tonal">
+                {{ formatDate(item.lastupdate) }}
+              </v-chip>
+            </template>
 
-        <template v-slot:item.actions="{ item }">
-          <v-btn icon="mdi-eye" variant="text" size="small" @click="viewDetails(item)"></v-btn>
-        </template>
+            <template v-slot:item.emaildemandeur="{ item }">
+              <a v-if="item.emaildemandeur !== '?'" :href="`mailto:${item.emaildemandeur}`"
+                class="text-decoration-none">
+                <v-icon icon="mdi-email" size="small" class="me-1"></v-icon>
+                {{ item.emaildemandeur }}
+              </a>
+              <span v-else class="text-grey">{{ item.emaildemandeur }}</span>
+            </template>
 
-        <template v-slot:no-data>
-          <v-alert type="info" variant="tonal">
-            Aucune demande trouvée
-          </v-alert>
-        </template>
-      </v-data-table>
-    </v-card>
-  </v-container>
+            <template v-slot:item.actions="{ item }">
+              <v-btn icon="mdi-eye" variant="text" size="small" @click="viewDetails(item)"></v-btn>
+            </template>
+
+            <template v-slot:no-data>
+              <v-alert type="info" variant="tonal">
+                Aucune demande trouvée
+              </v-alert>
+            </template>
+          </v-data-table>
+        </v-card>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script setup lang="ts">
+import type { ApiResponseUI, UserInfo } from './CallerInfo.vue'
 import type { JFFormsListe, ApiResponseJFFL, Row } from '@/axioscalls.js'
 import type { JFFormsData, ApiResponseJFFD } from '@/axioscalls.js'
 import type { ApiResponseNumber } from '@/axioscalls.js'
@@ -141,6 +191,9 @@ const props = withDefaults(defineProps<Props>(), {
   ssPageIdAffGo: '/goeland/jaxforms/axios/idaffaire_par_idjaxforms.php'
 })
 
+//Data caller
+const callerInformation = ref<UserInfo | null | undefined>(null)
+
 const jfFormsListeDataLoading = ref<boolean>(false);
 const jfFormsListeLoaded = ref<boolean>(false);
 let jfFormsListe: JFFormsListe
@@ -150,7 +203,7 @@ const totalSize = ref<number>(0)
 const size = ref<number>(0)
 const offset = ref<number>(props.offset)
 
-const affiche = ref<string>('')
+const jsonDataForms = ref<string>('')
 const affFormsListe = ref<GoFormsListe[]>([])
 
 onMounted(() => {
@@ -208,12 +261,12 @@ const loadData = async () => {
       }
     }
     jfFormsListeDataLoading.value = false
-    console.log(affFormsListe.value)
   }
 }
 
 const search = ref('')
 const dialogFormsData = ref(false)
+const dialogFormsImport = ref(false)
 const selectedItem = ref<GoFormsListe | null>(null)
 
 const headers = [
@@ -244,5 +297,22 @@ const formatDate = (dateString?: string) => {
 const viewDetails = (item: GoFormsListe) => {
   selectedItem.value = item
   dialogFormsData.value = true
+}
+
+const receptionDataForms = (receptedJsonDataForms: string) => {
+  jsonDataForms.value = receptedJsonDataForms
+}
+
+const prepareImport = () => {
+  console.log(`data Forms à importer \njson: ${jsonDataForms.value}`)
+  dialogFormsData.value = false
+  dialogFormsImport.value = true
+}
+
+const receptionCallerInfo = (jsonData: string) => {
+  const retCallerInformation = ref<ApiResponseUI>(JSON.parse(jsonData))
+  if (retCallerInformation.value.success) {
+    callerInformation.value = retCallerInformation.value.data
+  }
 }
 </script>

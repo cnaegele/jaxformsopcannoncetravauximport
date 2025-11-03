@@ -127,8 +127,9 @@
 </template>
 
 <script setup lang="ts">
-import type { JFFormsData, ApiResponseJFFD, Group } from '@/axioscalls.js'
-import { getJFFormsData, getDataContentByGroupAndVarId } from '@/axioscalls.js'
+import type { JFFormsData, ApiResponseJFFD, Group } from '@/axioscalls.ts'
+import type { DataForms, Fichier } from '@/jaxformsOpcAnnonceTravauxImport.ts'
+import { getJFFormsData, getDataContentByGroupAndVarId } from '@/axioscalls.ts'
 import { ref, onMounted } from 'vue'
 
 interface Props {
@@ -142,7 +143,6 @@ const props = withDefaults(defineProps<Props>(), {
   ssPage: '/goeland/jaxforms/axios/jfdata_annoncetravaux.php'
 })
 
-const affiche = ref<string>('')
 const localisation = ref<string>('?')
 const numeroECA = ref<string>('')
 const parcelle = ref<string>('')
@@ -151,11 +151,18 @@ const demandeur = ref<string>('')
 const nombreFichiers = ref<number>(0)
 const idsfichier = ref<string[]>([])
 
+let dataForms: DataForms = {idDemande: '', demandeur: {}, fichiers: []}
+
+const emit = defineEmits<{
+  (e: 'dataForms', jsonData: string): void
+}>()
+
 onMounted(() => {
   loadData();
 })
 
 const loadData = async () => {
+  dataForms.idDemande = props.id
   const jsonParamsD: string = `{"idformselement":"${props.id}"}`
   const responseD: ApiResponseJFFD = await getJFFormsData(props.ssServer, props.ssPage, jsonParamsD)
   const jfFormsData: JFFormsData | undefined = responseD.data
@@ -164,11 +171,13 @@ const loadData = async () => {
     const jfLocalisationRue: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_rue')
     if (jfLocalisationRue !== undefined) {
       const rue: string = jfLocalisationRue.toString()
+      dataForms.localisationRue = rue
       localisation.value = rue
       let numero: string
       const jfLocalisationNumeroRue: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_numeroDeRue')
       if (jfLocalisationNumeroRue !== undefined) {
         numero = jfLocalisationNumeroRue.toString()
+        dataForms.localisationNumero = numero
         localisation.value += ` ${numero}`
       }
     }
@@ -177,6 +186,7 @@ const loadData = async () => {
     let jfNumeroECA: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'numero_eca')
     if (jfNumeroECA !== undefined) {
       jfNumeroECA = jfNumeroECA.toString().trim()
+      dataForms.numeroECA = jfNumeroECA
       numeroECA.value = jfNumeroECA
     }
 
@@ -184,6 +194,7 @@ const loadData = async () => {
     let jfParcelle: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'numero_parcelle')
     if (jfParcelle !== undefined) {
       jfParcelle = jfParcelle.toString().trim()
+      dataForms.parcelle = jfParcelle
       parcelle.value = jfParcelle
     }
 
@@ -191,6 +202,7 @@ const loadData = async () => {
     const jfTravauxDescription: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'information_projet', 'travaux_description')
     if (jfTravauxDescription !== undefined) {
       descriptionTravaux.value = jfTravauxDescription.toString()
+      dataForms.descriptionTravaux = jfTravauxDescription.toString()
     }
 
     //Coordonnées demandeur
@@ -206,6 +218,7 @@ const loadData = async () => {
 
     if (jfDemandeurSociete !== undefined) {
       jfDemandeurSociete = jfDemandeurSociete.toString().trim()
+      dataForms.demandeur.societe = jfDemandeurSociete
       if (jfDemandeurSociete !== '') {
         demandeur.value = jfDemandeurSociete
       }
@@ -215,11 +228,13 @@ const loadData = async () => {
       jfDemandeurNom = jfDemandeurNom.toString().trim()
       if (jfDemandeurNom !== '') {
         jfDemandeurNomPrenom = jfDemandeurNom
+        dataForms.demandeur.nom = jfDemandeurNom
       }
     }
     if (jfDemandeurPrenom !== undefined) {
       jfDemandeurPrenom = jfDemandeurPrenom.toString().trim()
       if (jfDemandeurPrenom !== '') {
+          dataForms.demandeur.prenom = jfDemandeurPrenom
         if (jfDemandeurNomPrenom !== '') {
           jfDemandeurNomPrenom += ` ${jfDemandeurPrenom}`
         } else {
@@ -243,12 +258,14 @@ const loadData = async () => {
     if (jfDemandeurRue !== undefined) {
       jfDemandeurRue = jfDemandeurRue.toString().trim()
       if (jfDemandeurRue !== '') {
+        dataForms.demandeur.rue = jfDemandeurRue
         jfDemandeurRueNumero = jfDemandeurRue
       }
     }
     if (jfDemandeurNumero !== undefined) {
       jfDemandeurNumero = jfDemandeurNumero.toString().trim()
       if (jfDemandeurNumero !== '') {
+        dataForms.demandeur.numero = jfDemandeurNumero
         if (jfDemandeurRueNumero !== '') {
           jfDemandeurRueNumero += ` ${jfDemandeurNumero}`
         } else {
@@ -264,12 +281,14 @@ const loadData = async () => {
     if (jfDemandeurNpa !== undefined) {
       jfDemandeurNpa = jfDemandeurNpa.toString().trim()
       if (jfDemandeurNpa !== '') {
+        dataForms.demandeur.npa = jfDemandeurNpa
         jfDemandeurNpaLocalite = jfDemandeurNpa
       }
     }
     if (jfDemandeurLocalite !== undefined) {
       jfDemandeurLocalite = jfDemandeurLocalite.toString().trim()
       if (jfDemandeurLocalite !== '') {
+        dataForms.demandeur.localite = jfDemandeurLocalite
         if (jfDemandeurNpaLocalite !== '') {
           jfDemandeurNpaLocalite += ` ${jfDemandeurLocalite}`
         } else {
@@ -285,12 +304,14 @@ const loadData = async () => {
     if (jfDemandeurEmail !== undefined) {
       jfDemandeurEmail = jfDemandeurEmail.toString().trim()
       if (jfDemandeurEmail !== '') {
+        dataForms.demandeur.email = jfDemandeurEmail
         jfDemandeurEmailTel = jfDemandeurEmail
       }
     }
     if (jfDemandeurTelephone !== undefined) {
       jfDemandeurTelephone = jfDemandeurTelephone.toString().trim()
       if (jfDemandeurTelephone !== '') {
+        dataForms.demandeur.telephone = jfDemandeurTelephone
         if (jfDemandeurEmailTel !== '') {
           jfDemandeurEmailTel += ` / ${jfDemandeurTelephone}`
         } else {
@@ -301,9 +322,6 @@ const loadData = async () => {
     if (jfDemandeurNpaLocalite !== '') {
       demandeur.value += `\n${jfDemandeurEmailTel}`
     }
-
-
-
 
     //Fichiers
     const gFichiers: Group | undefined = jfFormsData.data.group.find(g => g.id === "GRP_3")
@@ -317,13 +335,14 @@ const loadData = async () => {
           if (idfile.trim() !== '') {
             nombreFichiers.value++
             idsfichier.value.push(idf.toString())
+            const tmpFichier: Fichier = {idjf: idf.toString(), b64content: '', mimetype: '', size: 0, sha256: '' }
+            dataForms.fichiers.push(tmpFichier)
           }
         }
       }
     }
-
   }
-  affiche.value = JSON.stringify(jfFormsData)
+  emit('dataForms', JSON.stringify(dataForms))
 }
 
 const voirFichier = (idFichier: string): void => {
