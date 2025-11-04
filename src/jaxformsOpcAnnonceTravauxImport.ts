@@ -17,6 +17,7 @@ export interface Fichier {
     mimetype: string
     size: number
     sha256: string
+    infoDoublon: string
     idDocGo: number
 }
 

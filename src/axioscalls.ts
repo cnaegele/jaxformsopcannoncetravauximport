@@ -1,5 +1,7 @@
 import axios from 'axios'
 import type { AxiosResponse, AxiosError } from 'axios'
+import type { DataForms } from '@/jaxformsOpcAnnonceTravauxImport.ts'
+
 
 //Interfaces pour la liste des formulaires
 interface Field {
@@ -73,6 +75,13 @@ export interface ApiResponseNumber {
     data?: number;
 }
 
+//Interface pour les donnéés a importer (formulaire et vérification goéland)
+export interface ApiResponseIFD {
+    success?: boolean;
+    message?: string;
+    data?: DataForms;
+}
+
 // Interface générique pour les réponses API
 export interface ApiResponse<T> {
     success: boolean
@@ -124,7 +133,7 @@ export async function getJFFormsData(server: string = '', page: string, jsonPara
     try {
         const response: AxiosResponse<JFFormsData> = await axios.get(urlfd, { params })
         const respData: ApiResponseJFFD = response
-        console.log(respData)
+        //console.log(respData)
         return respData
     } catch (error) {
         return traiteAxiosError(error as AxiosError)
@@ -136,8 +145,21 @@ export async function getIdAffaireGoeland(server: string = '', page: string, idJ
     const params = new URLSearchParams([['idjaxforms', idJaxForms]])
     try {
         const response: ApiResponseNumber = await axios.get(urlig, { params })
-        console.log(response)
+        //console.log(response)
         return response
+    } catch (error) {
+        return traiteAxiosError(error as AxiosError)
+    }
+}
+
+export async function getImportFormsData(server: string = '', page: string, jsonData: string = '{}'): Promise<ApiResponseIFD> {
+    const urlifd: string = `${server}${page}`
+    const params = new URLSearchParams([['jsondata', jsonData]])
+    try {
+        const response: AxiosResponse<DataForms> = await axios.get(urlifd, { params })
+        const respData: ApiResponseIFD = response
+        //console.log(respData)
+        return respData
     } catch (error) {
         return traiteAxiosError(error as AxiosError)
     }

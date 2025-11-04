@@ -51,7 +51,7 @@
           <v-card>
             <v-card-title class="d-flex align-center pe-2">
               <v-icon icon="mdi-file-document" class="me-2"></v-icon>
-              Préparation import de la demande
+              Préparation import de la demande dans une affaire OPC - Annonce travaux
 
               <v-spacer></v-spacer>
 
