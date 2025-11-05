@@ -82,6 +82,20 @@ export interface ApiResponseIFD {
     data?: DataForms;
 }
 
+//Interface pour les liste d'employe par unité
+export interface EmployeParUO {
+  idemploye: number
+  titrepol: string
+  nom: string
+  prenom: string
+  DescTreeDenorm: string  
+}
+export interface ApiResponseEU {
+    success?: boolean;
+    message?: string;
+    data?: EmployeParUO[];
+}
+
 // Interface générique pour les réponses API
 export interface ApiResponse<T> {
     success: boolean
@@ -165,6 +179,19 @@ export async function getImportFormsData(server: string = '', page: string, json
     }
 }
 
+export async function getListeEmployeParUO(server: string = '', page: string, idunite: number): Promise<ApiResponseEU> {
+    const urlle: string = `${server}${page}`
+    const jsoncriteres: string = `{"iduniteorg":${idunite}}`
+    const params = new URLSearchParams([['jsoncriteres', jsoncriteres]])
+    try {
+        const response: AxiosResponse<EmployeParUO[]> = await axios.get(urlle, { params })
+        const respData: ApiResponseEU = response
+        //console.log(respData)
+        return respData
+    } catch (error) {
+        return traiteAxiosError(error as AxiosError)
+    }
+}
 
 function traiteAxiosError<T>(error: AxiosError): ApiResponse<T> {
     let msgErr: string = ''

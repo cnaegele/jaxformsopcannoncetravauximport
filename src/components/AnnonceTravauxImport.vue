@@ -1,4 +1,5 @@
 <template>
+    <CallerInfo :ssServer="ssServer" @callerinfo="receptionCallerInfo"></CallerInfo>
     <CallerIsInGroup :ssServer="ssServer" nomgroupe="OPCAnnonceTravauxImport"
         @calleringroup="receptionCallerInGroupGoelandManager"></CallerIsInGroup>
     <div v-if="messageErreur !== ''" id="divErreur">{{ messageErreur }}</div>
@@ -12,21 +13,31 @@
         </div>
         <v-card v-else>
             <v-card-text>
-                <v-row>
+                <v-row dense>
                     <v-col cols="12" md="8">
                         <v-text-field v-model="nomAffaire" label="Nom" :maxlength="100" counter="100"
                             variant="outlined"></v-text-field>
                     </v-col>
                     <v-col cols="12" md="4">{{ nomAffaireRemarqueGo }}</v-col>
                 </v-row>
-                <v-row>
+                <v-row dense>
                     <v-col cols="12" md="12">
                         <v-text-field v-model="descriptionAffaire" label="Description" :maxlength="100" counter="100"
                             variant="outlined"></v-text-field>
                     </v-col>
                 </v-row>
-                <v-row>
-                    <v-col cols="12" md="12">{{ liensBatimentsParcelles }}</v-col>   
+                <v-row dense>
+                    <v-col cols="12" md="6">
+                        <v-select v-model="idEmpGestionnaire" :items="gestionnaireListeChoix" item-title="nom"
+                            item-value="id" label="Sélectionner le gestionnaire" density="comfortable"></v-select>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-select v-model="idEmpTechnicien" :items="technicienListeChoix" item-title="nom"
+                            item-value="id" label="Sélectionner le technicien" density="comfortable"></v-select>
+                    </v-col>
+                </v-row>
+                <v-row dense>
+                    <v-col cols="12" md="12">{{ liensBatimentsParcelles }}</v-col>
                 </v-row>
             </v-card-text>
         </v-card>
@@ -34,23 +45,28 @@
 </template>
 
 <script setup lang="ts">
+import type { ApiResponseUI, UserInfo } from './CallerInfo.vue'
 import type { ApiResponseIG } from './CallerIsInGroup.vue'
-import type { ApiResponseIFD } from '@/axioscalls.ts'
-import type { DataForms, Fichier } from '@/jaxformsOpcAnnonceTravauxImport.ts'
-import { getImportFormsData } from '@/axioscalls.ts'
+import type { ApiResponseIFD, ApiResponseEU, EmployeParUO } from '@/axioscalls.ts'
+import type { DataForms, Fichier, EmployeParticipe } from '@/jaxformsOpcAnnonceTravauxImport.ts'
+import { getImportFormsData, getListeEmployeParUO } from '@/axioscalls.ts'
 import { ref, onMounted } from 'vue'
 
 interface Props {
     jsonDataForms: string
     ssServer?: string
     ssPage?: string
+    ssPageEmployeListe?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
     ssServer: '',
-    ssPage: '/goeland/jaxforms/axios/jfprepareimport_annoncetravaux.php'
+    ssPage: '/goeland/jaxforms/axios/jfprepareimport_annoncetravaux.php',
+    ssPageEmployeListe: '/goeland/employe/axios/employe_liste_parunite.php'
 })
 
+//Data caller
+const callerInformation = ref<UserInfo | null | undefined>(null)
 //Droits caller
 const bOPCAnnonceTravauxImport = ref<boolean>(false)
 
@@ -60,6 +76,10 @@ const nomAffaire = ref<string>('');
 const nomAffaireRemarqueGo = ref<string>('');
 const descriptionAffaire = ref<string>('');
 const liensBatimentsParcelles = ref<string>('');
+const gestionnaireListeChoix = ref<EmployeParticipe[]>([])
+const idEmpGestionnaire = ref<number>(0)
+const technicienListeChoix = ref<EmployeParticipe[]>([])
+const idEmpTechnicien = ref<number>(0)
 
 onMounted(() => {
     loadDataImport()
@@ -68,6 +88,45 @@ onMounted(() => {
 const loadDataImport = async () => {
     jfFormsImportDataLoading.value = true
     console.log('props.jsonDataForms', props.jsonDataForms)
+
+    let gestionnaire: EmployeParticipe = { id: 0, nom: '-' }
+    gestionnaireListeChoix.value.push(gestionnaire)
+    const responseGestionnaire: ApiResponseEU = await getListeEmployeParUO(props.ssServer, props.ssPageEmployeListe, 106)
+    if (responseGestionnaire.data !== undefined) {
+        const employesOPCAdm: EmployeParUO[] = responseGestionnaire.data
+        employesOPCAdm.forEach((empl) => {
+            gestionnaire = {
+                id: empl.idemploye,
+                nom: `${empl.nom} ${empl.prenom}`
+            }
+            gestionnaireListeChoix.value.push(gestionnaire)
+        })
+    }
+    if (gestionnaireListeChoix.value.some(item => item.id === callerInformation.value?.id)) {
+        if (callerInformation.value?.id !== undefined && callerInformation.value?.id !== null) {
+            idEmpGestionnaire.value = callerInformation.value?.id
+        }
+    }
+
+    let technicien: EmployeParticipe = { id: 0, nom: '-' }
+    technicienListeChoix.value.push(technicien)
+    const responseTechnicien: ApiResponseEU = await getListeEmployeParUO(props.ssServer, props.ssPageEmployeListe, 105)
+    if (responseTechnicien.data !== undefined) {
+        const employesOPCTech: EmployeParUO[] = responseTechnicien.data
+        employesOPCTech.forEach((empl) => {
+            technicien = {
+                id: empl.idemploye,
+                nom: `${empl.nom} ${empl.prenom}`
+            }
+            technicienListeChoix.value.push(technicien)
+        })
+    }
+    if (technicienListeChoix.value.some(item => item.id === callerInformation.value?.id)) {
+        if (callerInformation.value?.id !== undefined && callerInformation.value?.id !== null) {
+            idEmpTechnicien.value = callerInformation.value?.id
+        }
+    }
+
     const responseID: ApiResponseIFD = await getImportFormsData(props.ssServer, props.ssPage, props.jsonDataForms)
     if (responseID.data !== undefined) {
         const dataImportPropose: DataForms = responseID.data
@@ -97,14 +156,14 @@ const loadDataImport = async () => {
         if (rueAdresseNomAffaire !== '') {
             nomAffaire.value = rueAdresseNomAffaire
             if (localisationNumero !== '' && idAdresseGo === 0) {
-                nomAffaireRemarqueGo.value = 'adresse introuvable dans goéland'    
-            }    
+                nomAffaireRemarqueGo.value = 'adresse introuvable dans goéland'
+            }
         } else {
             if (localisationRue !== '') {
                 nomAffaireRemarqueGo.value = 'rue introuvable dans goéland'
                 nomAffaire.value = localisationRue
                 if (localisationNumero !== '') {
-                    nomAffaire.value += ` ${localisationNumero}`    
+                    nomAffaire.value += ` ${localisationNumero}`
                 }
             }
         }
@@ -135,18 +194,18 @@ const loadDataImport = async () => {
                 nbrParcelle = aIdPar.length
             }
             if (nbrBatiment === 0) {
-                liensBatimentsParcelles.value = 'aucun bâtiment lié, '    
+                liensBatimentsParcelles.value = 'aucun bâtiment lié, '
             } else if (nbrBatiment === 1) {
-                liensBatimentsParcelles.value = '1 bâtiment lié, '    
+                liensBatimentsParcelles.value = '1 bâtiment lié, '
             } else {
-                liensBatimentsParcelles.value = `${nbrBatiment} bâtiments liés, `    
+                liensBatimentsParcelles.value = `${nbrBatiment} bâtiments liés, `
             }
             if (nbrParcelle === 0) {
-                liensBatimentsParcelles.value = 'aucune parcelle liée, '    
+                liensBatimentsParcelles.value = 'aucune parcelle liée, '
             } else if (nbrParcelle === 1) {
-                liensBatimentsParcelles.value += '1 parcelle liée, '    
+                liensBatimentsParcelles.value += '1 parcelle liée, '
             } else {
-                liensBatimentsParcelles.value += `${nbrParcelle} parcelles liées, `    
+                liensBatimentsParcelles.value += `${nbrParcelle} parcelles liées, `
             }
         }
 
@@ -157,6 +216,12 @@ const loadDataImport = async () => {
     jfFormsImportDataLoading.value = false
 }
 
+const receptionCallerInfo = (jsonData: string) => {
+    const retCallerInformation = ref<ApiResponseUI>(JSON.parse(jsonData))
+    if (retCallerInformation.value.success) {
+        callerInformation.value = retCallerInformation.value.data
+    }
+}
 const receptionCallerInGroupGoelandManager = (jsonData: string) => {
     const retCallerInGroup = ref<ApiResponseIG>(JSON.parse(jsonData))
     if (retCallerInGroup.value.success && retCallerInGroup.value.data !== undefined) {

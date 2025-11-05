@@ -36,3 +36,8 @@ export interface DataForms {
     demandeur: Demandeur 
     fichiers: Fichier[]
 }
+
+export interface EmployeParticipe {
+    id: number
+    nom: string
+} 
