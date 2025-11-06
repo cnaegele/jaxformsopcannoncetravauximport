@@ -84,7 +84,45 @@
                     </v-col>
                 </v-row>
                 <v-row dense>
+                    <v-col cols="12" md="12">
+                        <v-card v-if="nombreFichiers > 0">
+                            <v-row dense>
+                                <h3 class="text-subtitle-1 mb-3">
+                                    <v-icon icon="mdi-paperclip" size="small" class="me-1"></v-icon>
+                                    Fichiers joints
+                                </h3>
+                            </v-row>
+                            <v-row dense v-for="(fichier, index) in fichiers" :key="fichier.idjf">
+                                <v-col cols="12" md="3">Fichier {{ index + 1 }}</v-col>
+                                <v-col cols="12" md="6">
+                                    <span v-if="fichier.idDocGo === 0 && fichier.infoDoublon === ''">
+                                        <v-select v-model="fichier.idFamille" :items="docFamilleListe"
+                                            item-title="label" item-value="id" label="Famille" density="compact"
+                                            variant="outlined"></v-select>
+                                    </span>
+                                    <span v-if="fichier.idDocGo > 0">
+                                        document goéland {{ fichier.idDocGo }}
+                                    </span>
+                                    <span v-if="fichier.infoDoublon !== ''">
+                                        {{ fichier.infoDoublon }}
+                                    </span>
+                                </v-col>
+                                <v-col cols="12" md="3"><v-btn icon="mdi-eye" variant="text" color="primary"
+                                        size="small" @click="voirFichier(fichier.idjf)"></v-btn></v-col>
+                            </v-row>
+                        </v-card>
+
+                    </v-col>
+                </v-row>
+                <v-row dense>
                     <v-col cols="12" md="12">{{ liensBatimentsParcelles }}</v-col>
+                </v-row>
+                <v-row dense>
+                    <v-col cols="12" md="12" class="d-flex justify-center align-center">
+                        <v-btn color="red-accent-3" variant="text" @click="importDemande()">
+                            Importer cette demande dans une nouvelle affaire goéland
+                        </v-btn>
+                    </v-col>
                 </v-row>
             </v-card-text>
         </v-card>
@@ -95,21 +133,25 @@
 import type { ApiResponseUI, UserInfo } from './CallerInfo.vue'
 import type { ApiResponseIG } from './CallerIsInGroup.vue'
 import type { ApiResponseIFD, ApiResponseEU, EmployeParUO } from '@/axioscalls.ts'
+import type { ApiResponseDIP, DocumentImportParams } from '@/axioscalls.ts'
 import type { DataForms, Fichier, EmployeParticipe } from '@/jaxformsOpcAnnonceTravauxImport.ts'
-import { getImportFormsData, getListeEmployeParUO } from '@/axioscalls.ts'
+import { getImportFormsData, getListeEmployeParUO, getDocImportParams } from '@/axioscalls.ts'
 import { ref, onMounted, watch } from 'vue'
+import { fi } from 'vuetify/locale'
 
 interface Props {
     jsonDataForms: string
     ssServer?: string
     ssPage?: string
     ssPageEmployeListe?: string
+    ssPageDocImportParams?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
     ssServer: '',
     ssPage: '/goeland/jaxforms/axios/jfprepareimport_annoncetravaux.php',
-    ssPageEmployeListe: '/goeland/employe/axios/employe_liste_parunite.php'
+    ssPageEmployeListe: '/goeland/employe/axios/employe_liste_parunite.php',
+    ssPageDocImportParams: '/goeland/jaxforms/axios/jflistefamilledocument_annoncetravaux.php'
 })
 
 //Data caller
@@ -131,6 +173,10 @@ const idActeurClient = ref<number>(0)
 const nomActeurClient = ref<string>(' - ')
 const choixActeur = ref<boolean>(false)
 const infoActeur = ref<boolean>(false)
+const nombreFichiers = ref<number>(0)
+const fichiers = ref<Fichier[]>([])
+const docFamilleListe = ref<[{ id: number, label: string }]>([{ id: 0, label: 'fichier pas importé' }])
+const docSizeMax = ref<number>(5000000)
 
 onMounted(() => {
     loadDataImport()
@@ -244,6 +290,20 @@ const loadDataImport = async () => {
             }
         }
 
+        //Fichiers
+        if (dataImportPropose.fichiers !== undefined) {
+            const docImportParams: ApiResponseDIP = await getDocImportParams(props.ssServer, props.ssPageDocImportParams)
+            if (docImportParams.data !== undefined) {
+                docSizeMax.value = docImportParams.data.sizemax
+                docImportParams.data.familles.forEach((famille) => {
+                    docFamilleListe.value.push({ "id": famille.id, "label": famille.label })
+                })
+                console.log("docFamilleListe", docFamilleListe.value)
+            }
+            console.log("docImportParams", docImportParams)
+            fichiers.value = dataImportPropose.fichiers
+            nombreFichiers.value = fichiers.value.length
+        }
 
         //Liens bâtiments, parcelles
         let idsBatimentGo: string = '', nbrBatiment: number = 0
@@ -280,10 +340,7 @@ const loadDataImport = async () => {
                 liensBatimentsParcelles.value += `${nbrParcelle} parcelles liées, `
             }
         }
-
     }
-
-
 
     jfFormsImportDataLoading.value = false
 }
@@ -298,6 +355,13 @@ const receptionActeur = (id: number, jsonData: string) => {
     idActeurClient.value = acteurid
     nomActeurClient.value = acteurnom
     choixActeur.value = false
+}
+
+const voirFichier = (idFichier: string): void => {
+    window.open(`${props.ssServer}/goeland/jaxforms/jffileattachmentview_annoncetravaux.php?idfileattachment=${idFichier}`)
+}
+const importDemande = (): void => {
+    console.log(fichiers.value)
 }
 
 const receptionCallerInfo = (jsonData: string) => {

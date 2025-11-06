@@ -96,6 +96,17 @@ export interface ApiResponseEU {
     data?: EmployeParUO[];
 }
 
+//interface pour la liste des famille de document et la taille maximun autorisée
+export interface DocumentImportParams {
+  sizemax: number
+  familles: [{id: number, label: string}]  
+}
+export interface ApiResponseDIP {
+    success?: boolean;
+    message?: string;
+    data?: DocumentImportParams;
+}
+
 // Interface générique pour les réponses API
 export interface ApiResponse<T> {
     success: boolean
@@ -186,6 +197,18 @@ export async function getListeEmployeParUO(server: string = '', page: string, id
     try {
         const response: AxiosResponse<EmployeParUO[]> = await axios.get(urlle, { params })
         const respData: ApiResponseEU = response
+        //console.log(respData)
+        return respData
+    } catch (error) {
+        return traiteAxiosError(error as AxiosError)
+    }
+}
+
+export async function getDocImportParams(server: string = '', page: string): Promise<ApiResponseDIP> {
+    const urlle: string = `${server}${page}`
+    try {
+        const response: AxiosResponse<DocumentImportParams> = await axios.get(urlle)
+        const respData: ApiResponseDIP = response
         //console.log(respData)
         return respData
     } catch (error) {

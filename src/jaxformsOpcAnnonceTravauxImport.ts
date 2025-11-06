@@ -18,6 +18,7 @@ export interface Fichier {
     size: number
     sha256: string
     infoDoublon: string
+    idFamille: number
     idDocGo: number
 }
 
