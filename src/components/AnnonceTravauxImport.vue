@@ -95,7 +95,7 @@
                             <v-row dense v-for="(fichier, index) in fichiers" :key="fichier.idjf">
                                 <v-col cols="12" md="3">Fichier {{ index + 1 }}</v-col>
                                 <v-col cols="12" md="6">
-                                    <span v-if="fichier.idDocGo === 0 && fichier.infoDoublon === ''">
+                                    <span v-if="fichier.idDocGo === 0 && fichier.infoDoublon === '' && fichier.size <= docSizeMax">
                                         <v-select v-model="fichier.idFamille" :items="docFamilleListe"
                                             item-title="label" item-value="id" label="Famille" density="compact"
                                             variant="outlined"></v-select>
@@ -103,8 +103,11 @@
                                     <span v-if="fichier.idDocGo > 0">
                                         document goéland {{ fichier.idDocGo }}
                                     </span>
-                                    <span v-if="fichier.infoDoublon !== ''">
+                                    <span v-if="fichier.idDocGo == 0 && fichier.infoDoublon !== ''">
                                         {{ fichier.infoDoublon }}
+                                    </span>
+                                    <span v-if="fichier.idDocGo == 0 && fichier.infoDoublon === '' && fichier.size > docSizeMax">
+                                        fichier de {{ Math.round(fichier.size/1024/1024) }} Mo, maximum accepté : {{ Math.round(docSizeMax/1024/1024) }} Mo
                                     </span>
                                 </v-col>
                                 <v-col cols="12" md="3"><v-btn icon="mdi-eye" variant="text" color="primary"
