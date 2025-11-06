@@ -9,7 +9,7 @@ interface Demandeur {
     email?: string
     telephone?: string
     idacteurGo?: number
-    nomActeurGo?: string
+    nomacteurGo?: string
 }
 export interface Fichier {
     idjf: string

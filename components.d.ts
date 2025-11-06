@@ -11,6 +11,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ActeurChoix: typeof import('./src/components/ActeurChoix.vue')['default']
+    ActeurData: typeof import('./src/components/ActeurData.vue')['default']
     AnnonceTravauxData: typeof import('./src/components/AnnonceTravauxData.vue')['default']
     AnnonceTravauxImport: typeof import('./src/components/AnnonceTravauxImport.vue')['default']
     AnnonceTravauxListe: typeof import('./src/components/AnnonceTravauxListe.vue')['default']

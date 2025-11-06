@@ -37,6 +37,53 @@
                     </v-col>
                 </v-row>
                 <v-row dense>
+                    <v-col cols="12" md="12">
+                        <!-- En-tête Client -->
+                        <div class="d-flex align-center mb-3">
+                            <span class="text-subtitle-2 text-grey-darken-1 mr-2">Client :</span>
+                            <span class="font-weight-medium mr-4">{{ nomActeurClient }}</span>
+
+                            <!-- Boutons d'action -->
+                            <v-btn v-if="idActeurClient > 0" color="grey-lighten-1" icon="mdi-information"
+                                variant="text" size="small" class="mr-2"
+                                title="information détaillée pour cet acteur goéland"
+                                @click="infoActeur = !infoActeur"></v-btn>
+
+                            <v-btn v-if="idActeurClient > 0" color="grey-lighten-1" icon="mdi-delete" variant="text"
+                                size="small" class="mr-4" title="supprimer ce choix de client"
+                                @click="supprimeClient()"></v-btn>
+
+                            <v-btn color="primary" variant="tonal" size="small" prepend-icon="mdi-account-search"
+                                @click="choixActeur = !choixActeur">
+                                Choisir un acteur
+                            </v-btn>
+                        </div>
+
+                        <!-- Card Info Acteur -->
+                        <v-card v-if="infoActeur" variant="outlined" class="mb-3" style="position: relative;">
+                            <v-btn icon="mdi-close" variant="text" size="small" @click="infoActeur = false"
+                                style="position: absolute; top: 4px; right: 4px; z-index: 1;"></v-btn>
+                            <v-card-text class="pt-8">
+                                <Suspense>
+                                    <ActeurData :acteurId="idActeurClient" :ssServer="ssServer"></ActeurData>
+                                </Suspense>
+                            </v-card-text>
+                        </v-card>
+
+                        <!-- Card Choix Acteur -->
+                        <v-card v-if="choixActeur" variant="outlined" class="mb-3" style="position: relative;">
+                            <v-btn icon="mdi-close" variant="text" size="small" @click="choixActeur = false"
+                                style="position: absolute; top: 4px; right: 4px; z-index: 1;"></v-btn>
+                            <v-card-text class="pt-8">
+                                <Suspense>
+                                    <ActeurChoix :ssServer="ssServer" modeChoix="unique" @choixActeur="receptionActeur">
+                                    </ActeurChoix>
+                                </Suspense>
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+                </v-row>
+                <v-row dense>
                     <v-col cols="12" md="12">{{ liensBatimentsParcelles }}</v-col>
                 </v-row>
             </v-card-text>
@@ -50,7 +97,7 @@ import type { ApiResponseIG } from './CallerIsInGroup.vue'
 import type { ApiResponseIFD, ApiResponseEU, EmployeParUO } from '@/axioscalls.ts'
 import type { DataForms, Fichier, EmployeParticipe } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 import { getImportFormsData, getListeEmployeParUO } from '@/axioscalls.ts'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 
 interface Props {
     jsonDataForms: string
@@ -80,9 +127,25 @@ const gestionnaireListeChoix = ref<EmployeParticipe[]>([])
 const idEmpGestionnaire = ref<number>(0)
 const technicienListeChoix = ref<EmployeParticipe[]>([])
 const idEmpTechnicien = ref<number>(0)
+const idActeurClient = ref<number>(0)
+const nomActeurClient = ref<string>(' - ')
+const choixActeur = ref<boolean>(false)
+const infoActeur = ref<boolean>(false)
 
 onMounted(() => {
     loadDataImport()
+})
+
+watch(() => infoActeur.value, (newValue) => {
+    if (newValue) {
+        choixActeur.value = false
+    }
+})
+watch(() => choixActeur.value, (newValue) => {
+    if (newValue) {
+        infoActeur.value = false
+    }
+    console.log("choixActeur", choixActeur.value, "infoActeur", infoActeur.value)
 })
 
 const loadDataImport = async () => {
@@ -173,6 +236,15 @@ const loadDataImport = async () => {
             descriptionAffaire.value = dataImportPropose.descriptionTravaux
         }
 
+        //Client (acteur)
+        if (dataImportPropose.demandeur.idacteurGo !== undefined && dataImportPropose.demandeur.nomacteurGo !== undefined) {
+            if (dataImportPropose.demandeur.idacteurGo > 0) {
+                idActeurClient.value = dataImportPropose.demandeur.idacteurGo
+                nomActeurClient.value = dataImportPropose.demandeur.nomacteurGo
+            }
+        }
+
+
         //Liens bâtiments, parcelles
         let idsBatimentGo: string = '', nbrBatiment: number = 0
         let idsParcelleGo: string = '', nbrParcelle: number = 0
@@ -214,6 +286,18 @@ const loadDataImport = async () => {
 
 
     jfFormsImportDataLoading.value = false
+}
+
+const supprimeClient = () => {
+    idActeurClient.value = 0
+    nomActeurClient.value = ' - '
+}
+
+const receptionActeur = (id: number, jsonData: string) => {
+    const { acteurid, acteurnom } = JSON.parse(jsonData) as { acteurid: number, acteurnom: string }
+    idActeurClient.value = acteurid
+    nomActeurClient.value = acteurnom
+    choixActeur.value = false
 }
 
 const receptionCallerInfo = (jsonData: string) => {
