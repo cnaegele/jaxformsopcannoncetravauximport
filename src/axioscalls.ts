@@ -216,6 +216,21 @@ export async function getDocImportParams(server: string = '', page: string): Pro
     }
 }
 
+export async function importAffaire(server: string = '', page: string, jsonData: string = '{}'): Promise<ApiResponseNumber> {
+    const url: string = `${server}${page}`
+    try {
+        const response: ApiResponseNumber = await axios.post(url, jsonData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        console.log(response)
+        return response
+    } catch (error) {
+        return traiteAxiosError(error as AxiosError)
+    }
+}
+
 function traiteAxiosError<T>(error: AxiosError): ApiResponse<T> {
     let msgErr: string = ''
     if (error.response) {

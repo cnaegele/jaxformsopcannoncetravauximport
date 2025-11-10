@@ -135,12 +135,12 @@
 <script setup lang="ts">
 import type { ApiResponseUI, UserInfo } from './CallerInfo.vue'
 import type { ApiResponseIG } from './CallerIsInGroup.vue'
-import type { ApiResponseIFD, ApiResponseEU, EmployeParUO } from '@/axioscalls.ts'
-import type { ApiResponseDIP, DocumentImportParams } from '@/axioscalls.ts'
-import type { DataForms, Fichier, EmployeParticipe } from '@/jaxformsOpcAnnonceTravauxImport.ts'
-import { getImportFormsData, getListeEmployeParUO, getDocImportParams } from '@/axioscalls.ts'
+import type { ApiResponseIFD, ApiResponseEU, EmployeParUO, ApiResponseNumber } from '@/axioscalls.ts'
+import type { ApiResponseDIP } from '@/axioscalls.ts'
+import type { DataForms, Fichier, EmployeParticipe, AffaireDataImport, FichierImport } from '@/jaxformsOpcAnnonceTravauxImport.ts'
+import { getImportFormsData, getListeEmployeParUO, getDocImportParams, importAffaire } from '@/axioscalls.ts'
 import { ref, onMounted, watch } from 'vue'
-import { fi } from 'vuetify/locale'
+import { stringToPositiveInteger } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 
 interface Props {
     jsonDataForms: string
@@ -148,13 +148,15 @@ interface Props {
     ssPage?: string
     ssPageEmployeListe?: string
     ssPageDocImportParams?: string
+    ssPageAffaireImport?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
     ssServer: '',
     ssPage: '/goeland/jaxforms/axios/jfprepareimport_annoncetravaux.php',
     ssPageEmployeListe: '/goeland/employe/axios/employe_liste_parunite.php',
-    ssPageDocImportParams: '/goeland/jaxforms/axios/jflistefamilledocument_annoncetravaux.php'
+    ssPageDocImportParams: '/goeland/jaxforms/axios/jflistefamilledocument_annoncetravaux.php',
+    ssPageAffaireImport: '/goeland/jaxforms/axios/jfimportaffaire_annoncetravaux.php'
 })
 
 //Data caller
@@ -164,9 +166,12 @@ const bOPCAnnonceTravauxImport = ref<boolean>(false)
 
 const messageErreur = ref<string | undefined>('')
 const jfFormsImportDataLoading = ref<boolean>(false);
+const idJaxformsDemande = ref<string>('')
 const nomAffaire = ref<string>('');
 const nomAffaireRemarqueGo = ref<string>('');
 const descriptionAffaire = ref<string>('');
+const aIdsBatimentGo = ref<number[]>([])
+const aIdsParcelleGo = ref<number[]>([])
 const liensBatimentsParcelles = ref<string>('');
 const gestionnaireListeChoix = ref<EmployeParticipe[]>([])
 const idEmpGestionnaire = ref<number>(0)
@@ -180,6 +185,10 @@ const nombreFichiers = ref<number>(0)
 const fichiers = ref<Fichier[]>([])
 const docFamilleListe = ref<[{ id: number, label: string }]>([{ id: 0, label: 'fichier pas importé' }])
 const docSizeMax = ref<number>(5000000)
+
+const emit = defineEmits<{
+  (e: 'affaireimport', idaffaire: string): void
+}>()
 
 onMounted(() => {
     loadDataImport()
@@ -242,7 +251,9 @@ const loadDataImport = async () => {
     const responseID: ApiResponseIFD = await getImportFormsData(props.ssServer, props.ssPage, props.jsonDataForms)
     if (responseID.data !== undefined) {
         const dataImportPropose: DataForms = responseID.data
-        console.log(dataImportPropose)
+        console.log("dataImportPropose",dataImportPropose)
+
+        idJaxformsDemande.value = dataImportPropose.idDemande
 
         //Nom affaire selon adresse
         let rueAdresseNomAffaire: string = ''
@@ -323,10 +334,22 @@ const loadDataImport = async () => {
             if (idsBatimentGo !== '') {
                 const aIdBat: string[] = idsBatimentGo.split(",");
                 nbrBatiment = aIdBat.length
+                aIdBat.forEach((sid)=> {
+                    const idbat = stringToPositiveInteger(sid)
+                    if (idbat !== null) {
+                        aIdsBatimentGo.value.push(idbat)
+                    }
+                })  
             }
             if (idsParcelleGo !== '') {
                 const aIdPar: string[] = idsParcelleGo.split(",");
                 nbrParcelle = aIdPar.length
+                aIdPar.forEach((sid)=> {
+                    const idpar = stringToPositiveInteger(sid)
+                    if (idpar !== null) {
+                        aIdsParcelleGo.value.push(idpar)
+                    }
+                })  
             }
             if (nbrBatiment === 0) {
                 liensBatimentsParcelles.value = 'aucun bâtiment lié, '
@@ -363,8 +386,43 @@ const receptionActeur = (id: number, jsonData: string) => {
 const voirFichier = (idFichier: string): void => {
     window.open(`${props.ssServer}/goeland/jaxforms/jffileattachmentview_annoncetravaux.php?idfileattachment=${idFichier}`)
 }
-const importDemande = (): void => {
+const importDemande = async () => {
     console.log(fichiers.value)
+    let fichierImport: FichierImport[] = [] 
+    fichiers.value.forEach(fic => {
+        const idfamille: number = fic.idFamille
+        if (idfamille > 0) {
+            const idJaxforms: string = fic.idjf
+            const fimp: FichierImport = {
+               "idJaxforms": idJaxforms,
+               "idFamille": idfamille,
+               "filename" : ''
+            }
+            fichierImport.push(fimp)
+        }
+    });
+
+    const affaireDataImport: AffaireDataImport = {
+        "idJaxformsDemande": idJaxformsDemande.value,
+        "nomAffaire": nomAffaire.value.trim(),
+        "descriptionAffaire": descriptionAffaire.value.trim(),
+        "idEmployeGestionnaire": idEmpGestionnaire.value,
+        "idEmployeTechnicien": idEmpTechnicien.value,
+        "idBatimentLie": aIdsBatimentGo.value,
+        "idParcelleLie": aIdsParcelleGo.value,
+        "fichiers" : fichierImport
+    }
+    console.log("affaireDataImport", JSON.stringify(affaireDataImport))
+    const responseIdAffaire: ApiResponseNumber = await importAffaire(props.ssServer, props.ssPageAffaireImport, JSON.stringify(affaireDataImport))
+    console.log(responseIdAffaire)
+    let sjson: string
+    if (responseIdAffaire.data !== undefined) {
+        const sidAffaire: string = responseIdAffaire.data.toString()
+        sjson = `{"idjaxformsdemande":"${idJaxformsDemande.value}", "idaffaire":"${sidAffaire}"}`
+    } else {
+        sjson = `{"idjaxformsdemande":"${idJaxformsDemande.value}", "idaffaire":"0"}`
+    } 
+    emit('affaireimport', sjson)
 }
 
 const receptionCallerInfo = (jsonData: string) => {

@@ -13,6 +13,7 @@ interface Demandeur {
 }
 export interface Fichier {
     idjf: string
+    filename: string
     b64content: string
     mimetype: string
     size: number
@@ -38,7 +39,40 @@ export interface DataForms {
     fichiers: Fichier[]
 }
 
+export interface FichierImport {
+    idJaxforms: string
+    idFamille: number
+    filename: string
+}
+export interface AffaireDataImport {
+    idJaxformsDemande: string
+    nomAffaire: string
+    descriptionAffaire: string
+    idEmployeGestionnaire: number
+    idEmployeTechnicien: number
+    idBatimentLie: number[]
+    idParcelleLie: number[]
+    fichiers: FichierImport[]    
+}
+
 export interface EmployeParticipe {
     id: number
     nom: string
-} 
+}
+
+export function stringToPositiveInteger(str: string): number | null {
+    // Vérifie que c'est une string non vide
+    if (!str || str.trim() === '') {
+        return null;
+    }
+    
+    // Convertit en number
+    const num = Number(str);
+    
+    // Vérifie que c'est un nombre valide, un entier et positif
+    if (isNaN(num) || !Number.isInteger(num) || num < 0) {
+        return null;
+    }
+    
+    return num;
+}

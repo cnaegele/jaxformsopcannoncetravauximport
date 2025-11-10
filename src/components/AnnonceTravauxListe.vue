@@ -61,7 +61,7 @@
             <v-divider></v-divider>
 
             <v-card-text class="pa-4">
-              <AnnonceTravauxImport :jsonDataForms="jsonDataForms" :ssServer="ssServer" />
+              <AnnonceTravauxImport :jsonDataForms="jsonDataForms" :ssServer="ssServer" @affaireimport="receptionAffaireImport" />
             </v-card-text>
 
             <v-divider></v-divider>
@@ -155,14 +155,14 @@
 
 <script setup lang="ts">
 import type { ApiResponseUI, UserInfo } from './CallerInfo.vue'
-import type { JFFormsListe, ApiResponseJFFL, Row } from '@/axioscalls.js'
-import type { JFFormsData, ApiResponseJFFD } from '@/axioscalls.js'
-import type { ApiResponseNumber } from '@/axioscalls.js'
+import type { JFFormsListe, ApiResponseJFFL, Row } from '@/axioscalls.ts'
+import type { JFFormsData, ApiResponseJFFD } from '@/axioscalls.ts'
+import type { ApiResponseNumber } from '@/axioscalls.ts'
 
 import { ref, onMounted } from 'vue'
-import { getJFFormsListe, getListeFieldValue } from '@/axioscalls.js'
-import { getJFFormsData, getDataContentByGroupAndVarId } from '@/axioscalls.js'
-import { getIdAffaireGoeland } from '@/axioscalls.js'
+import { getJFFormsListe, getListeFieldValue } from '@/axioscalls.ts'
+import { getJFFormsData, getDataContentByGroupAndVarId } from '@/axioscalls.ts'
+import { getIdAffaireGoeland } from '@/axioscalls.ts'
 
 interface GoFormsListe {
   id?: string
@@ -231,8 +231,6 @@ const loadData = async () => {
           //Si une affaire goéland existe pour cet idForms, on affiche pas la ligne
           const responseIdGo: ApiResponseNumber = await getIdAffaireGoeland(props.ssServer, props.ssPageIdAffGo, idForms)
           if (responseIdGo.data === 0 || responseIdGo.data === undefined || responseIdGo.data === null) {
-
-
             const jsonParamsD: string = `{"idformselement":"${idForms}"}`
             const responseD: ApiResponseJFFD = await getJFFormsData(props.ssServer, props.ssPageData, jsonParamsD)
             const jfFormsData: JFFormsData | undefined = responseD.data
@@ -301,6 +299,20 @@ const viewDetails = (item: GoFormsListe) => {
 
 const receptionDataForms = (receptedJsonDataForms: string) => {
   jsonDataForms.value = receptedJsonDataForms
+}
+
+const receptionAffaireImport = (sjson: string) => {
+  dialogFormsImport.value = false
+  const oRecep: {"idjaxformsdemande": string, "idaffaire": string} = JSON.parse(sjson)
+  const idAffaire = oRecep.idaffaire
+  const idjf = oRecep.idjaxformsdemande
+
+  const index: number = affFormsListe.value.findIndex(obj => obj.id === idjf);
+  if (index !== -1) {
+    affFormsListe.value.splice(index, 1);
+  }
+
+  window.open(`${props.ssServer}/goeland/affaire2/affaire_data.php?idaffaire=${idAffaire}`)
 }
 
 const prepareImport = () => {
