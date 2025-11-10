@@ -408,6 +408,7 @@ const importDemande = async () => {
         "descriptionAffaire": descriptionAffaire.value.trim(),
         "idEmployeGestionnaire": idEmpGestionnaire.value,
         "idEmployeTechnicien": idEmpTechnicien.value,
+        "idActeurClient": idActeurClient.value,
         "idBatimentLie": aIdsBatimentGo.value,
         "idParcelleLie": aIdsParcelleGo.value,
         "fichiers" : fichierImport

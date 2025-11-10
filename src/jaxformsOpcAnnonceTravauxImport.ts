@@ -50,6 +50,7 @@ export interface AffaireDataImport {
     descriptionAffaire: string
     idEmployeGestionnaire: number
     idEmployeTechnicien: number
+    idActeurClient: number
     idBatimentLie: number[]
     idParcelleLie: number[]
     fichiers: FichierImport[]    
