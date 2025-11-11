@@ -95,7 +95,8 @@
                             <v-row dense v-for="(fichier, index) in fichiers" :key="fichier.idjf">
                                 <v-col cols="12" md="3">Fichier {{ index + 1 }}</v-col>
                                 <v-col cols="12" md="6">
-                                    <span v-if="fichier.idDocGo === 0 && fichier.infoDoublon === '' && fichier.size <= docSizeMax">
+                                    <span
+                                        v-if="fichier.idDocGo === 0 && fichier.infoDoublon === '' && fichier.size <= docSizeMax">
                                         <v-select v-model="fichier.idFamille" :items="docFamilleListe"
                                             item-title="label" item-value="id" label="Famille" density="compact"
                                             variant="outlined"></v-select>
@@ -106,8 +107,10 @@
                                     <span v-if="fichier.idDocGo == 0 && fichier.infoDoublon !== ''">
                                         {{ fichier.infoDoublon }}
                                     </span>
-                                    <span v-if="fichier.idDocGo == 0 && fichier.infoDoublon === '' && fichier.size > docSizeMax">
-                                        fichier de {{ Math.round(fichier.size/1024/1024) }} Mo, maximum accepté : {{ Math.round(docSizeMax/1024/1024) }} Mo
+                                    <span
+                                        v-if="fichier.idDocGo == 0 && fichier.infoDoublon === '' && fichier.size > docSizeMax">
+                                        fichier de {{ Math.round(fichier.size / 1024 / 1024) }} Mo, maximum accepté : {{
+                                        Math.round(docSizeMax/1024/1024) }} Mo
                                     </span>
                                 </v-col>
                                 <v-col cols="12" md="3"><v-btn icon="mdi-eye" variant="text" color="primary"
@@ -135,7 +138,7 @@
 <script setup lang="ts">
 import type { ApiResponseUI, UserInfo } from './CallerInfo.vue'
 import type { ApiResponseIG } from './CallerIsInGroup.vue'
-import type { ApiResponseIFD, ApiResponseEU, EmployeParUO, ApiResponseNumber } from '@/axioscalls.ts'
+import type { ApiResponseIFD, ApiResponseEU, EmployeParUO, ApiResponseNumber, ApiResponseNumStr } from '@/axioscalls.ts'
 import type { ApiResponseDIP } from '@/axioscalls.ts'
 import type { DataForms, Fichier, EmployeParticipe, AffaireDataImport, FichierImport } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 import { getImportFormsData, getListeEmployeParUO, getDocImportParams, importAffaire } from '@/axioscalls.ts'
@@ -187,7 +190,7 @@ const docFamilleListe = ref<[{ id: number, label: string }]>([{ id: 0, label: 'f
 const docSizeMax = ref<number>(5000000)
 
 const emit = defineEmits<{
-  (e: 'affaireimport', idaffaire: string): void
+    (e: 'affaireimport', idaffaire: string): void
 }>()
 
 onMounted(() => {
@@ -251,7 +254,7 @@ const loadDataImport = async () => {
     const responseID: ApiResponseIFD = await getImportFormsData(props.ssServer, props.ssPage, props.jsonDataForms)
     if (responseID.data !== undefined) {
         const dataImportPropose: DataForms = responseID.data
-        console.log("dataImportPropose",dataImportPropose)
+        console.log("dataImportPropose", dataImportPropose)
 
         idJaxformsDemande.value = dataImportPropose.idDemande
 
@@ -334,22 +337,22 @@ const loadDataImport = async () => {
             if (idsBatimentGo !== '') {
                 const aIdBat: string[] = idsBatimentGo.split(",");
                 nbrBatiment = aIdBat.length
-                aIdBat.forEach((sid)=> {
+                aIdBat.forEach((sid) => {
                     const idbat = stringToPositiveInteger(sid)
                     if (idbat !== null) {
                         aIdsBatimentGo.value.push(idbat)
                     }
-                })  
+                })
             }
             if (idsParcelleGo !== '') {
                 const aIdPar: string[] = idsParcelleGo.split(",");
                 nbrParcelle = aIdPar.length
-                aIdPar.forEach((sid)=> {
+                aIdPar.forEach((sid) => {
                     const idpar = stringToPositiveInteger(sid)
                     if (idpar !== null) {
                         aIdsParcelleGo.value.push(idpar)
                     }
-                })  
+                })
             }
             if (nbrBatiment === 0) {
                 liensBatimentsParcelles.value = 'aucun bâtiment lié, '
@@ -388,16 +391,16 @@ const voirFichier = (idFichier: string): void => {
 }
 const importDemande = async () => {
     console.log(fichiers.value)
-    let fichierImport: FichierImport[] = [] 
+    let fichierImport: FichierImport[] = []
     fichiers.value.forEach(fic => {
         const idfamille: number = fic.idFamille
         if (idfamille > 0) {
             const famille = docFamilleListe.value.find(item => item.id === idfamille)?.label ?? "famille inconnue"
             const idJaxforms: string = fic.idjf
             const fimp: FichierImport = {
-               "idJaxforms": idJaxforms,
-               "idFamille": idfamille,
-               "filename" : famille
+                "idJaxforms": idJaxforms,
+                "idFamille": idfamille,
+                "filename": famille
             }
             fichierImport.push(fimp)
         }
@@ -412,19 +415,23 @@ const importDemande = async () => {
         "idActeurClient": idActeurClient.value,
         "idBatimentLie": aIdsBatimentGo.value,
         "idParcelleLie": aIdsParcelleGo.value,
-        "fichiers" : fichierImport
+        "fichiers": fichierImport
     }
     console.log("affaireDataImport", JSON.stringify(affaireDataImport))
-    const responseIdAffaire: ApiResponseNumber = await importAffaire(props.ssServer, props.ssPageAffaireImport, JSON.stringify(affaireDataImport))
+    const responseIdAffaire: ApiResponseNumStr = await importAffaire(props.ssServer, props.ssPageAffaireImport, JSON.stringify(affaireDataImport))
     console.log(responseIdAffaire)
     let sjson: string
     if (responseIdAffaire.data !== undefined) {
         const sidAffaire: string = responseIdAffaire.data.toString()
-        sjson = `{"idjaxformsdemande":"${idJaxformsDemande.value}", "idaffaire":"${sidAffaire}"}`
+        if (/^\d+$/.test(sidAffaire)) {
+            sjson = `{"idjaxformsdemande":"${idJaxformsDemande.value}", "idaffaire":"${sidAffaire}"}`
+            emit('affaireimport', sjson)
+        } else {
+            messageErreur.value = `Echec lors de l'importation.\n${sidAffaire}`
+        }
     } else {
-        sjson = `{"idjaxformsdemande":"${idJaxformsDemande.value}", "idaffaire":"0"}`
-    } 
-    emit('affaireimport', sjson)
+        messageErreur.value = `Echec lors de l'importation.`
+    }
 }
 
 const receptionCallerInfo = (jsonData: string) => {

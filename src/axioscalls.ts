@@ -74,7 +74,11 @@ export interface ApiResponseNumber {
     message?: string;
     data?: number;
 }
-
+export interface ApiResponseNumStr {
+    success?: boolean;
+    message?: string;
+    data?: number | string;
+}
 //Interface pour les donnéés a importer (formulaire et vérification goéland)
 export interface ApiResponseIFD {
     success?: boolean;
@@ -216,10 +220,10 @@ export async function getDocImportParams(server: string = '', page: string): Pro
     }
 }
 
-export async function importAffaire(server: string = '', page: string, jsonData: string = '{}'): Promise<ApiResponseNumber> {
+export async function importAffaire(server: string = '', page: string, jsonData: string = '{}'): Promise<ApiResponseNumStr> {
     const url: string = `${server}${page}`
     try {
-        const response: ApiResponseNumber = await axios.post(url, jsonData, {
+        const response: ApiResponseNumStr = await axios.post(url, jsonData, {
             headers: {
                 'Content-Type': 'application/json'
             }
