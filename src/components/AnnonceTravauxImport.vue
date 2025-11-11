@@ -392,11 +392,12 @@ const importDemande = async () => {
     fichiers.value.forEach(fic => {
         const idfamille: number = fic.idFamille
         if (idfamille > 0) {
+            const famille = docFamilleListe.value.find(item => item.id === idfamille)?.label ?? "famille inconnue"
             const idJaxforms: string = fic.idjf
             const fimp: FichierImport = {
                "idJaxforms": idJaxforms,
                "idFamille": idfamille,
-               "filename" : ''
+               "filename" : famille
             }
             fichierImport.push(fimp)
         }
