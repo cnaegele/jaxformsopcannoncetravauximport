@@ -418,19 +418,23 @@ const importDemande = async () => {
         "fichiers": fichierImport
     }
     console.log("affaireDataImport", JSON.stringify(affaireDataImport))
-    const responseIdAffaire: ApiResponseNumStr = await importAffaire(props.ssServer, props.ssPageAffaireImport, JSON.stringify(affaireDataImport))
-    console.log(responseIdAffaire)
-    let sjson: string
-    if (responseIdAffaire.data !== undefined) {
-        const sidAffaire: string = responseIdAffaire.data.toString()
-        if (/^\d+$/.test(sidAffaire)) {
-            sjson = `{"idjaxformsdemande":"${idJaxformsDemande.value}", "idaffaire":"${sidAffaire}"}`
-            emit('affaireimport', sjson)
+    if (nomAffaire.value.trim().length >= 5) {
+        const responseIdAffaire: ApiResponseNumStr = await importAffaire(props.ssServer, props.ssPageAffaireImport, JSON.stringify(affaireDataImport))
+        console.log(responseIdAffaire)
+        let sjson: string
+        if (responseIdAffaire.data !== undefined) {
+            const sidAffaire: string = responseIdAffaire.data.toString()
+            if (/^\d+$/.test(sidAffaire)) {
+                sjson = `{"idjaxformsdemande":"${idJaxformsDemande.value}", "idaffaire":"${sidAffaire}"}`
+                emit('affaireimport', sjson)
+            } else {
+                messageErreur.value = `Echec lors de l'importation.\n${sidAffaire}`
+            }
         } else {
-            messageErreur.value = `Echec lors de l'importation.\n${sidAffaire}`
+            messageErreur.value = `Echec lors de l'importation.`
         }
     } else {
-        messageErreur.value = `Echec lors de l'importation.`
+        messageErreur.value = `Le nom de l'affaire est obligatoire et doit contenir au minimum 5 caractères`    
     }
 }
 
