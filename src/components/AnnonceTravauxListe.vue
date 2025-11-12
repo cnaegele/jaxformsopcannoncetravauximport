@@ -86,7 +86,7 @@
         <v-card v-if="jfFormsListeLoaded">
           <v-card-title class="d-flex align-center pe-2">
             <v-icon icon="mdi-file-document-multiple" class="me-2"></v-icon>
-            Liste des annonces de travaux pas importées dans goéland
+            Liste des annonces de travaux traitées pas importées dans goéland
 
             <v-spacer></v-spacer>
 
