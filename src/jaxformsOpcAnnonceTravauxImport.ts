@@ -25,6 +25,7 @@ export interface Fichier {
 
 export interface DataForms {
     idDemande: string
+    numeroDemande: string
     localisationRue?: string
     localisationNumero?: string
     idRueGo?: number

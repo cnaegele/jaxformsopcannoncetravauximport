@@ -18,7 +18,7 @@
           <v-card>
             <v-card-title class="d-flex align-center pe-2">
               <v-icon icon="mdi-file-document" class="me-2"></v-icon>
-              Détails de la demande
+              Détails de la demande {{ selecteduuid }}
 
               <v-spacer></v-spacer>
 
@@ -28,7 +28,7 @@
             <v-divider></v-divider>
 
             <v-card-text class="pa-4">
-              <AnnonceTravauxData v-if="selectedItem" :id="selectedItem.id" :ssServer="ssServer"
+              <AnnonceTravauxData v-if="selectedItem" :id="selectedItem.id" :uuid="selectedItem.uuid" :ssServer="ssServer"
                 @dataForms="receptionDataForms" />
             </v-card-text>
 
@@ -51,7 +51,7 @@
           <v-card>
             <v-card-title class="d-flex align-center pe-2">
               <v-icon icon="mdi-file-document" class="me-2"></v-icon>
-              Préparation import de la demande dans une affaire OPC - Annonce travaux
+              Préparation import de la demande {{ selecteduuid }} dans une affaire OPC - Annonce travaux
 
               <v-spacer></v-spacer>
 
@@ -98,6 +98,12 @@
 
           <v-data-table :headers="headers" :items="affFormsListe" :search="search" item-value="id"
             items-per-page-text="Lignes par page" :items-per-page="10">
+            <template v-slot:item.uuid="{ item }">
+              <div class="text-truncate">
+                {{ item.uuid }}
+              </div>
+            </template>
+
             <template v-slot:item.localisation="{ item }">
               <div class="text-truncate" style="max-width: 250px;">
                 <v-icon icon="mdi-map-marker" size="small" class="me-1"></v-icon>
@@ -166,6 +172,7 @@ import { getIdAffaireGoeland } from '@/axioscalls.ts'
 
 interface GoFormsListe {
   id?: string
+  uuid?: string
   created?: string
   lastupdate?: string
   localisation?: string
@@ -176,6 +183,7 @@ interface GoFormsListe {
 interface Props {
   pagesize?: number
   offset?: number
+  demandestatus?: number
   ssServer?: string
   ssPageListe?: string
   ssPageData?: string
@@ -185,6 +193,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   pagesize: 100,
   offset: 0,
+  demandestatus: 0,
   ssServer: '',
   ssPageListe: '/goeland/jaxforms/axios/jfsearch_annoncetravaux.php',
   ssPageData: '/goeland/jaxforms/axios/jfdata_annoncetravaux.php',
@@ -198,13 +207,15 @@ const jfFormsListeDataLoading = ref<boolean>(false);
 const jfFormsListeLoaded = ref<boolean>(false);
 let jfFormsListe: JFFormsListe
 const pageSize = ref<number>(props.pagesize)
+const offset = ref<number>(props.offset)
+const demandestatus = ref<number>(props.demandestatus)
 const hasNext = ref<boolean>(false)
 const totalSize = ref<number>(0)
 const size = ref<number>(0)
-const offset = ref<number>(props.offset)
 
 const jsonDataForms = ref<string>('')
 const affFormsListe = ref<GoFormsListe[]>([])
+const selecteduuid = ref<string>('')
 
 onMounted(() => {
   loadData();
@@ -212,7 +223,7 @@ onMounted(() => {
 
 const loadData = async () => {
   jfFormsListeDataLoading.value = true
-  const jsonParamsL: string = `{"pagesize":${pageSize.value},"offset":${offset.value}}`
+  const jsonParamsL: string = `{"pagesize":${pageSize.value},"offset":${offset.value},"demandestatus":${demandestatus.value}}`
   const responseL: ApiResponseJFFL = await getJFFormsListe(props.ssServer, props.ssPageListe, jsonParamsL)
   jfFormsListeLoaded.value = true
   console.log(responseL.data)
@@ -247,6 +258,7 @@ const loadData = async () => {
             //console.log(responseD)
             const goFormsListe: GoFormsListe = {
               id: getListeFieldValue(therow, 'AccessID') ?? '?',
+              uuid: getListeFieldValue(therow, 'UUID') ?? '?',
               created: getListeFieldValue(therow, 'Created') ?? '',
               lastupdate: getListeFieldValue(therow, 'LastUpdate'),
               localisation: `${localisationRue?.toString()} ${localisationNumRue?.toString()}`,
@@ -268,6 +280,7 @@ const dialogFormsImport = ref(false)
 const selectedItem = ref<GoFormsListe | null>(null)
 
 const headers = [
+  { title: 'Numéro', key: 'uuid', sortable: true },
   { title: 'Localisation', key: 'localisation', sortable: true },
   { title: 'Description des travaux', key: 'descriptiontravaux', sortable: true },
   { title: 'Email demandeur', key: 'emaildemandeur', sortable: true },
@@ -294,6 +307,7 @@ const formatDate = (dateString?: string) => {
 
 const viewDetails = (item: GoFormsListe) => {
   selectedItem.value = item
+  selecteduuid.value = item.uuid ?? ''
   dialogFormsData.value = true
 }
 

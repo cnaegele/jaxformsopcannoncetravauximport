@@ -13,7 +13,18 @@
           </v-list-item>
         </v-col>
 
-        <v-col cols="12" md="6">
+        <v-col cols="12" md="3">
+          <v-list-item density="compact">
+            <v-list-item-title class="text-body-2 text-grey">
+              Numéro de demande
+            </v-list-item-title>
+            <v-list-item-subtitle class="text-body-1 font-weight-medium">
+              {{ props.uuid }}
+            </v-list-item-subtitle>
+          </v-list-item>
+        </v-col>
+
+        <v-col cols="12" md="3">
           <v-list-item density="compact">
             <v-list-item-title class="text-body-2 text-grey">
               Nombre de fichiers
@@ -134,6 +145,7 @@ import { ref, onMounted } from 'vue'
 
 interface Props {
   id: string
+  uuid: string
   ssServer?: string
   ssPage?: string
 }
@@ -151,7 +163,7 @@ const demandeur = ref<string>('')
 const nombreFichiers = ref<number>(0)
 const idsfichier = ref<string[]>([])
 
-let dataForms: DataForms = {idDemande: '', demandeur: {}, fichiers: []}
+let dataForms: DataForms = {idDemande: '', numeroDemande: '', demandeur: {}, fichiers: []}
 
 const emit = defineEmits<{
   (e: 'dataForms', jsonData: string): void
@@ -163,6 +175,7 @@ onMounted(() => {
 
 const loadData = async () => {
   dataForms.idDemande = props.id
+  dataForms.numeroDemande = props.uuid
   const jsonParamsD: string = `{"idformselement":"${props.id}"}`
   const responseD: ApiResponseJFFD = await getJFFormsData(props.ssServer, props.ssPage, jsonParamsD)
   const jfFormsData: JFFormsData | undefined = responseD.data
