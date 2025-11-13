@@ -144,7 +144,8 @@
             </template>
 
             <template v-slot:item.actions="{ item }">
-              <v-btn icon="mdi-eye" variant="text" size="small" @click="viewDetails(item)"></v-btn>
+              <v-btn icon="mdi-eye" variant="text" size="small" title="détail du formulaire" @click="prepareImportDirect = false; viewDetails(item)"></v-btn>
+              <v-btn icon="mdi-import" variant="text" size="small" title="préparation import" @click="prepareImportDirect = true; viewDetails(item)"></v-btn>
             </template>
 
             <template v-slot:no-data>
@@ -216,6 +217,7 @@ const size = ref<number>(0)
 const jsonDataForms = ref<string>('')
 const affFormsListe = ref<GoFormsListe[]>([])
 const selecteduuid = ref<string>('')
+const prepareImportDirect = ref<boolean>(false)
 
 onMounted(() => {
   loadData();
@@ -286,7 +288,7 @@ const headers = [
   { title: 'Email demandeur', key: 'emaildemandeur', sortable: true },
   { title: 'Créé le', key: 'created', sortable: true },
   { title: 'Dernière mise à jour', key: 'lastupdate', sortable: true },
-  { title: 'Actions', key: 'actions', sortable: false, align: 'end' as const }
+  { title: 'Actions', key: 'actions', sortable: false, align: 'center' as const }
 ]
 
 const formatDate = (dateString?: string) => {
@@ -313,6 +315,9 @@ const viewDetails = (item: GoFormsListe) => {
 
 const receptionDataForms = (receptedJsonDataForms: string) => {
   jsonDataForms.value = receptedJsonDataForms
+  if (prepareImportDirect.value) {
+    prepareImport()
+  }
 }
 
 const receptionAffaireImport = (sjson: string) => {
