@@ -170,6 +170,7 @@ const bOPCAnnonceTravauxImport = ref<boolean>(false)
 const messageErreur = ref<string | undefined>('')
 const jfFormsImportDataLoading = ref<boolean>(false);
 const idJaxformsDemande = ref<string>('')
+const numeroJaxformsDemande = ref<string>('')
 const nomAffaire = ref<string>('');
 const nomAffaireRemarqueGo = ref<string>('');
 const descriptionAffaire = ref<string>('');
@@ -257,6 +258,7 @@ const loadDataImport = async () => {
         console.log("dataImportPropose", dataImportPropose)
 
         idJaxformsDemande.value = dataImportPropose.idDemande
+        numeroJaxformsDemande.value = dataImportPropose.numeroDemande
 
         //Nom affaire selon adresse
         let rueAdresseNomAffaire: string = ''
@@ -408,6 +410,7 @@ const importDemande = async () => {
 
     const affaireDataImport: AffaireDataImport = {
         "idJaxformsDemande": idJaxformsDemande.value,
+        "numeroJaxformsDemande": numeroJaxformsDemande.value,
         "nomAffaire": nomAffaire.value.trim(),
         "descriptionAffaire": descriptionAffaire.value.trim(),
         "idEmployeGestionnaire": idEmpGestionnaire.value,

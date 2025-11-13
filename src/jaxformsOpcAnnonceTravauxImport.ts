@@ -47,6 +47,7 @@ export interface FichierImport {
 }
 export interface AffaireDataImport {
     idJaxformsDemande: string
+    numeroJaxformsDemande: string
     nomAffaire: string
     descriptionAffaire: string
     idEmployeGestionnaire: number
