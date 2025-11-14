@@ -1,5 +1,5 @@
 <template>
-      <AnnonceTravauxListe :ssServer="ssServer" :demandestatus="0"></AnnonceTravauxListe>
+      <AnnonceTravauxListe :ssServer="ssServer" :demandestatus="40"></AnnonceTravauxListe>
 </template>
 
 <script setup lang="ts">
