@@ -92,9 +92,10 @@
                                     Fichiers joints
                                 </h3>
                             </v-row>
-                            <v-row dense v-for="(fichier, index) in fichiers" :key="fichier.idjf">
-                                <v-col cols="12" md="3">Fichier {{ index + 1 }}</v-col>
-                                <v-col cols="12" md="6">
+                            <v-row dense v-for="(fichier, index) in fichiers" :key="fichier.idjf"
+                                class="px-4 align-center" :class="{ 'border-b': index < fichiers.length - 1 }">
+                                <v-col cols="12" md="6">{{ fichier.filename }}</v-col>
+                                <v-col cols="12" md="5">
                                     <span
                                         v-if="fichier.idDocGo === 0 && fichier.infoDoublon === '' && fichier.size <= docSizeMax">
                                         <v-select v-model="fichier.idFamille" :items="docFamilleListe"
@@ -110,11 +111,13 @@
                                     <span
                                         v-if="fichier.idDocGo == 0 && fichier.infoDoublon === '' && fichier.size > docSizeMax">
                                         fichier de {{ Math.round(fichier.size / 1024 / 1024) }} Mo, maximum accepté : {{
-                                        Math.round(docSizeMax/1024/1024) }} Mo
+                                            Math.round(docSizeMax/1024/1024) }} Mo
                                     </span>
                                 </v-col>
-                                <v-col cols="12" md="3"><v-btn icon="mdi-eye" variant="text" color="primary"
-                                        size="small" @click="voirFichier(fichier.idjf)"></v-btn></v-col>
+                                <v-col cols="12" md="1">
+                                    <v-btn icon="mdi-eye" variant="text" color="primary" size="small"
+                                        @click="voirFichier(fichier.idjf)"></v-btn>
+                                </v-col>
                             </v-row>
                         </v-card>
 
@@ -255,7 +258,7 @@ const loadDataImport = async () => {
     const responseID: ApiResponseIFD = await getImportFormsData(props.ssServer, props.ssPage, props.jsonDataForms)
     if (responseID.data !== undefined) {
         const dataImportPropose: DataForms = responseID.data
-        console.log("dataImportPropose", dataImportPropose)
+        //console.log("dataImportPropose", dataImportPropose)
 
         idJaxformsDemande.value = dataImportPropose.idDemande
         numeroJaxformsDemande.value = dataImportPropose.numeroDemande
@@ -399,10 +402,11 @@ const importDemande = async () => {
         if (idfamille > 0) {
             const famille = docFamilleListe.value.find(item => item.id === idfamille)?.label ?? "famille inconnue"
             const idJaxforms: string = fic.idjf
+            const filenameJaxforms: string = fic.filename
             const fimp: FichierImport = {
                 "idJaxforms": idJaxforms,
                 "idFamille": idfamille,
-                "filename": famille
+                "filename": `${famille} - ${filenameJaxforms}`
             }
             fichierImport.push(fimp)
         }
@@ -437,7 +441,7 @@ const importDemande = async () => {
             messageErreur.value = `Echec lors de l'importation.`
         }
     } else {
-        messageErreur.value = `Le nom de l'affaire est obligatoire et doit contenir au minimum 5 caractères`    
+        messageErreur.value = `Le nom de l'affaire est obligatoire et doit contenir au minimum 5 caractères`
     }
 }
 
@@ -484,5 +488,14 @@ const receptionCallerInGroupGoelandManager = (jsonData: string) => {
     border-radius: 20px;
     white-space: pre-line;
     /* Convertit les \n en sauts de ligne */
+}
+
+.border-b {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* Pour le mode sombre */
+.v-theme--dark .border-b {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 </style>

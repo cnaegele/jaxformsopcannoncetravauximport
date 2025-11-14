@@ -107,7 +107,7 @@
         </h3>
 
         <v-list density="compact" class="bg-transparent">
-          <v-list-item v-for="(idfichier, index) in idsfichier" :key="idfichier" @click="voirFichier(idfichier)"
+          <v-list-item v-for="(fichier, index) in listeFichiers" :key="fichier.idfichier" @click="voirFichier(fichier.idfichier)"
             class="mb-2" rounded border>
             <template v-slot:prepend>
               <v-avatar color="primary" size="36">
@@ -116,11 +116,11 @@
             </template>
 
             <v-list-item-title>
-              Fichier {{ index + 1 }}
+              {{ fichier.nomfichier }}
             </v-list-item-title>
 
             <v-list-item-subtitle class="text-caption">
-              ID: {{ idfichier }}
+              ID: {{ fichier.idfichier }}
             </v-list-item-subtitle>
 
             <template v-slot:append>
@@ -155,6 +155,11 @@ const props = withDefaults(defineProps<Props>(), {
   ssPage: '/goeland/jaxforms/axios/jfdata_annoncetravaux.php'
 })
 
+interface ListeFichiers {
+  idfichier: string
+  nomfichier: string
+}
+
 const localisation = ref<string>('?')
 const numeroECA = ref<string>('')
 const parcelle = ref<string>('')
@@ -162,6 +167,7 @@ const descriptionTravaux = ref<string>('?')
 const demandeur = ref<string>('')
 const nombreFichiers = ref<number>(0)
 const idsfichier = ref<string[]>([])
+const listeFichiers = ref<ListeFichiers[]>([])
 
 let dataForms: DataForms = {idDemande: '', numeroDemande: '', demandeur: {}, fichiers: []}
 
@@ -343,12 +349,16 @@ const loadData = async () => {
       const nbrPotentielFichiers: number = vars.length
       for (let i: number = 0; i < nbrPotentielFichiers; i++) {
         const idf: string | number | undefined = vars[i]?.content
+        const nomf: string | number | undefined = vars[i]?.id ?? '?'
         if (idf !== undefined) {
           const idfile: string = idf.toString()
+          const nomfile: string = nomf.toString()
           if (idfile.trim() !== '') {
             nombreFichiers.value++
-            idsfichier.value.push(idf.toString())
-            const tmpFichier: Fichier = {idjf: idf.toString(), filename: '', b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0 }
+            const fichier: ListeFichiers = {idfichier: idfile, nomfichier: nomfile}
+            listeFichiers.value.push(fichier)
+            idsfichier.value.push(idfile)
+            const tmpFichier: Fichier = {idjf: idfile, filename: nomfile, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0 }
             dataForms.fichiers.push(tmpFichier)
           }
         }
