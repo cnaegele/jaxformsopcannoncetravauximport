@@ -86,7 +86,7 @@
         <v-card v-if="jfFormsListeLoaded">
           <v-card-title class="d-flex align-center pe-2">
             <v-icon icon="mdi-file-document-multiple" class="me-2"></v-icon>
-            Liste des annonces de travaux traitées pas importées dans goéland
+            Liste des annonces de travaux{{ libelleStatus }} pas importées dans goéland
 
             <v-spacer></v-spacer>
 
@@ -218,6 +218,17 @@ const jsonDataForms = ref<string>('')
 const affFormsListe = ref<GoFormsListe[]>([])
 const selecteduuid = ref<string>('')
 const prepareImportDirect = ref<boolean>(false)
+
+const libelleStatus = ref<string>('')
+switch (props.demandestatus) {
+  case 0:
+    break;
+  case 40:
+    libelleStatus.value = ' traitées'
+    break;
+  default:
+    libelleStatus.value = ` (statut ${demandestatus.value.toString()})`
+}
 
 onMounted(() => {
   loadData();

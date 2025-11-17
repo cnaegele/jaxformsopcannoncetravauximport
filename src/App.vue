@@ -11,12 +11,13 @@ if (import.meta.env.DEV) {
 }
 
 //Possibilité de passer le status en paramètre
-const demandesStatus = ref<string>('40') //status traité
+const demandesStatus = ref<number>(40) //status traité
 const urlParams = new URLSearchParams(window.location.search)
 const prmDemandesStatus = urlParams.get('status')
-if (prmDemandesStatus) {
-  if (/^\d{1,3}$/.test(prmDemandesStatus)) {
-    demandesStatus.value = prmDemandesStatus
+if (prmDemandesStatus !== null) {
+  const iDemandesStatus: number | null = stringToPositiveInteger(prmDemandesStatus) 
+  if (iDemandesStatus !== null) {
+     demandesStatus.value = iDemandesStatus
   }
 }
 </script>
