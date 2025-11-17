@@ -227,14 +227,13 @@ const loadData = async () => {
     //Coordonnées demandeur
     let jfDemandeurNom: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_proprietaire_nom')
     let jfDemandeurPrenom: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_proprietaire_prenom')
-    let jfDemandeurSociete: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_proprietaire_societe')
+    let jfDemandeurSociete: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnées_proprietaite_societe') //Oui, il y a un é. Merci SOI
     let jfDemandeurRue: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_rue')
     let jfDemandeurNumero: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_numero')
     let jfDemandeurNpa: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_npa')
     let jfDemandeurLocalite: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_localite')
     let jfDemandeurTelephone: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_telephone_telephone_mobile')
     let jfDemandeurEmail: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_email_proprietaire')
-
     if (jfDemandeurSociete !== undefined) {
       jfDemandeurSociete = jfDemandeurSociete.toString().trim()
       dataForms.demandeur.societe = jfDemandeurSociete

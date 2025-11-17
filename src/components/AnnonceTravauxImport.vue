@@ -57,6 +57,13 @@
                                 @click="choixActeur = !choixActeur">
                                 Choisir un acteur
                             </v-btn>
+                            &nbsp;&nbsp;
+                                          <a :href="`mailto:goeland@lausanne.ch?subject=${encodeURI('Création acteur')}&body=${encodeURI(mailtobody)}`"
+                class="text-decoration-none">
+                <v-icon icon="mdi-email" size="small" class="me-1"></v-icon>
+                demande de création d'un acteur
+              </a>
+
                         </div>
 
                         <!-- Card Info Acteur -->
@@ -141,7 +148,7 @@
 <script setup lang="ts">
 import type { ApiResponseUI, UserInfo } from './CallerInfo.vue'
 import type { ApiResponseIG } from './CallerIsInGroup.vue'
-import type { ApiResponseIFD, ApiResponseEU, EmployeParUO, ApiResponseNumber, ApiResponseNumStr } from '@/axioscalls.ts'
+import type { ApiResponseIFD, ApiResponseEU, EmployeParUO, ApiResponseNumStr } from '@/axioscalls.ts'
 import type { ApiResponseDIP } from '@/axioscalls.ts'
 import type { DataForms, Fichier, EmployeParticipe, AffaireDataImport, FichierImport } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 import { getImportFormsData, getListeEmployeParUO, getDocImportParams, importAffaire } from '@/axioscalls.ts'
@@ -192,6 +199,7 @@ const nombreFichiers = ref<number>(0)
 const fichiers = ref<Fichier[]>([])
 const docFamilleListe = ref<[{ id: number, label: string }]>([{ id: 0, label: 'fichier pas importé' }])
 const docSizeMax = ref<number>(5000000)
+const mailtobody = ref<string>('')
 
 const emit = defineEmits<{
     (e: 'affaireimport', idaffaire: string): void
@@ -311,6 +319,18 @@ const loadDataImport = async () => {
                 nomActeurClient.value = dataImportPropose.demandeur.nomacteurGo
             }
         }
+        //mailtobody pour demande de création d'acteur
+        const dataForms: DataForms = JSON.parse(props.jsonDataForms)
+        const societe: string = dataForms.demandeur.societe ?? ''
+        const nom: string = dataForms.demandeur.nom ?? ''
+        const prenom: string = dataForms.demandeur.prenom ?? ''
+        const rue: string = dataForms.demandeur.rue ?? ''
+        const numero: string = dataForms.demandeur.numero ?? ''
+        const npa: string = dataForms.demandeur.npa ?? ''
+        const localite: string = dataForms.demandeur.localite ?? ''
+        const email: string = dataForms.demandeur.email ?? ''
+        const telephone: string = dataForms.demandeur.telephone ?? ''   
+        mailtobody.value = `Societé : ${societe}\nNom : ${nom}\nPrénom : ${prenom}\nRue numéro : ${rue} ${numero}\nNpa Localité : ${npa} ${localite}\nemail : ${email}\ntéléphone : ${telephone}`
 
         //Fichiers
         if (dataImportPropose.fichiers !== undefined) {
@@ -320,9 +340,9 @@ const loadDataImport = async () => {
                 docImportParams.data.familles.forEach((famille) => {
                     docFamilleListe.value.push({ "id": famille.id, "label": famille.label })
                 })
-                console.log("docFamilleListe", docFamilleListe.value)
+                //console.log("docFamilleListe", docFamilleListe.value)
             }
-            console.log("docImportParams", docImportParams)
+            //console.log("docImportParams", docImportParams)
             fichiers.value = dataImportPropose.fichiers
             nombreFichiers.value = fichiers.value.length
         }
@@ -375,7 +395,6 @@ const loadDataImport = async () => {
             }
         }
     }
-
     jfFormsImportDataLoading.value = false
 }
 

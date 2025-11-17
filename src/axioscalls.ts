@@ -162,7 +162,7 @@ export async function getJFFormsData(server: string = '', page: string, jsonPara
     try {
         const response: AxiosResponse<JFFormsData> = await axios.get(urlfd, { params })
         const respData: ApiResponseJFFD = response
-        //console.log(respData.data)
+        console.log(respData.data)
         return respData
     } catch (error) {
         return traiteAxiosError(error as AxiosError)
