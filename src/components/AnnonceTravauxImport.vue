@@ -58,12 +58,11 @@
                                 Choisir un acteur
                             </v-btn>
                             &nbsp;&nbsp;
-                                          <a :href="`mailto:goeland@lausanne.ch?subject=${encodeURI('Création acteur')}&body=${encodeURI(mailtobody)}`"
-                class="text-decoration-none">
-                <v-icon icon="mdi-email" size="small" class="me-1"></v-icon>
-                demande de création d'un acteur
-              </a>
-
+                            <a :href="`mailto:goeland@lausanne.ch?subject=${encodeURI('Création acteur')}&body=${encodeURI(mailtobody)}`"
+                                class="text-decoration-none">
+                                <v-icon icon="mdi-email" size="small" class="me-1"></v-icon>
+                                demande de création d'un acteur
+                            </a>
                         </div>
 
                         <!-- Card Info Acteur -->
@@ -118,7 +117,7 @@
                                     <span
                                         v-if="fichier.idDocGo == 0 && fichier.infoDoublon === '' && fichier.size > docSizeMax">
                                         fichier de {{ Math.round(fichier.size / 1024 / 1024) }} Mo, maximum accepté : {{
-                                            Math.round(docSizeMax/1024/1024) }} Mo
+                                            Math.round(docSizeMax / 1024 / 1024) }} Mo
                                     </span>
                                 </v-col>
                                 <v-col cols="12" md="1">
@@ -329,7 +328,7 @@ const loadDataImport = async () => {
         const npa: string = dataForms.demandeur.npa ?? ''
         const localite: string = dataForms.demandeur.localite ?? ''
         const email: string = dataForms.demandeur.email ?? ''
-        const telephone: string = dataForms.demandeur.telephone ?? ''   
+        const telephone: string = dataForms.demandeur.telephone ?? ''
         mailtobody.value = `Societé : ${societe}\nNom : ${nom}\nPrénom : ${prenom}\nRue numéro : ${rue} ${numero}\nNpa Localité : ${npa} ${localite}\nemail : ${email}\ntéléphone : ${telephone}`
 
         //Fichiers

@@ -135,7 +135,7 @@
             </template>
 
             <template v-slot:item.emaildemandeur="{ item }">
-              <a v-if="item.emaildemandeur !== '?'" :href="`mailto:${item.emaildemandeur}`"
+              <a v-if="item.emaildemandeur !== '?'" :href="`mailto:${item.emaildemandeur}?subject=${encodeURI('Annonce travaux N° ' + item.uuid)}`"
                 class="text-decoration-none">
                 <v-icon icon="mdi-email" size="small" class="me-1"></v-icon>
                 {{ item.emaildemandeur }}
