@@ -28,8 +28,8 @@
             <v-divider></v-divider>
 
             <v-card-text class="pa-4">
-              <AnnonceTravauxData v-if="selectedItem" :id="selectedItem.id" :uuid="selectedItem.uuid" :ssServer="ssServer"
-                @dataForms="receptionDataForms" />
+              <AnnonceTravauxData v-if="selectedItem" :id="selectedItem.id" :uuid="selectedItem.uuid"
+                :ssServer="ssServer" @dataForms="receptionDataForms" />
             </v-card-text>
 
             <v-divider></v-divider>
@@ -61,7 +61,8 @@
             <v-divider></v-divider>
 
             <v-card-text class="pa-4">
-              <AnnonceTravauxImport :jsonDataForms="jsonDataForms" :ssServer="ssServer" @affaireimport="receptionAffaireImport" />
+              <AnnonceTravauxImport :jsonDataForms="jsonDataForms" :ssServer="ssServer"
+                @affaireimport="receptionAffaireImport" />
             </v-card-text>
 
             <v-divider></v-divider>
@@ -135,7 +136,8 @@
             </template>
 
             <template v-slot:item.emaildemandeur="{ item }">
-              <a v-if="item.emaildemandeur !== '?'" :href="`mailto:${item.emaildemandeur}?subject=${encodeURI('Annonce travaux N° ' + item.uuid)}`"
+              <a v-if="item.emaildemandeur !== '?'"
+                :href="`mailto:${item.emaildemandeur}?subject=${encodeURI('Annonce travaux N° ' + item.uuid)}`"
                 class="text-decoration-none">
                 <v-icon icon="mdi-email" size="small" class="me-1"></v-icon>
                 {{ item.emaildemandeur }}
@@ -144,8 +146,10 @@
             </template>
 
             <template v-slot:item.actions="{ item }">
-              <v-btn icon="mdi-eye" variant="text" size="small" title="détail du formulaire" @click="prepareImportDirect = false; viewDetails(item)"></v-btn>
-              <v-btn icon="mdi-import" variant="text" size="small" title="préparation import" @click="prepareImportDirect = true; viewDetails(item)"></v-btn>
+              <v-btn icon="mdi-eye" variant="text" size="small" title="détail du formulaire"
+                @click="prepareImportDirect = false; viewDetails(item)"></v-btn>
+              <v-btn icon="mdi-import" variant="text" size="small" title="préparation import"
+                @click="prepareImportDirect = true; viewDetails(item)"></v-btn>
             </template>
 
             <template v-slot:no-data>
@@ -333,7 +337,7 @@ const receptionDataForms = (receptedJsonDataForms: string) => {
 
 const receptionAffaireImport = (sjson: string) => {
   dialogFormsImport.value = false
-  const oRecep: {"idjaxformsdemande": string, "idaffaire": string} = JSON.parse(sjson)
+  const oRecep: { "idjaxformsdemande": string, "idaffaire": string } = JSON.parse(sjson)
   const idAffaire = oRecep.idaffaire
   const idjf = oRecep.idjaxformsdemande
 
