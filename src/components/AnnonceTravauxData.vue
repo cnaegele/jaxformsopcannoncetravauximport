@@ -362,7 +362,7 @@ const loadData = async () => {
             const fichier: ListeFichiers = {idfichier: idfile, nomfichier: nomfile}
             listeFichiers.value.push(fichier)
             idsfichier.value.push(idfile)
-            const tmpFichier: Fichier = {idjf: idfile, filename: nomfile, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0 }
+            const tmpFichier: Fichier = {idjf: idfile, filename: nomfile, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
             dataForms.fichiers.push(tmpFichier)
           }
         }
@@ -387,5 +387,4 @@ const loadData = async () => {
 const voirFichier = (idFichier: string): void => {
   window.open(`${props.ssServer}/goeland/jaxforms/jffileattachmentview_annoncetravaux.php?idfileattachment=${idFichier}`)
 }
-
 </script>

@@ -101,16 +101,18 @@
                             <v-row dense v-for="(fichier, index) in fichiers" :key="fichier.idjf"
                                 class="px-4 align-center" :class="{ 'border-b': index < fichiers.length - 1 }">
                                 <v-col cols="12" md="6">{{ fichier.filename }}</v-col>
-                                <v-col cols="12" md="5">
+                                <v-col cols="12" md="5" class="d-flex align-center">
                                     <span
                                         v-if="fichier.idDocGo === 0 && fichier.infoDoublon === '' && fichier.size <= docSizeMax">
                                         <v-select v-model="fichier.idFamille" :items="docFamilleListe"
                                             item-title="label" item-value="id" label="Famille" density="compact"
                                             variant="outlined"></v-select>
                                     </span>
-                                    <span v-if="fichier.idDocGo > 0">
+                                    <span v-if="fichier.idDocGo > 0" class="d-flex align-center">
                                         document goéland {{ fichier.idDocGo }}
-                                    </span>
+                                        <v-checkbox v-model="fichier.docGoLie" :true-value="1" :false-value="0"
+                                            label="Lier" class="ml-2" hide-details />
+                                    </span> 
                                     <span v-if="fichier.idDocGo == 0 && fichier.infoDoublon !== ''">
                                         {{ fichier.infoDoublon }}
                                     </span>
@@ -153,7 +155,7 @@ import type { ApiResponseUI, UserInfo } from './CallerInfo.vue'
 import type { ApiResponseIG } from './CallerIsInGroup.vue'
 import type { ApiResponseIFD, ApiResponseEU, EmployeParUO, ApiResponseNumStr } from '@/axioscalls.ts'
 import type { ApiResponseDIP } from '@/axioscalls.ts'
-import type { DataForms, Fichier, EmployeParticipe, AffaireDataImport, FichierImport } from '@/jaxformsOpcAnnonceTravauxImport.ts'
+import type { DataForms, Fichier, EmployeParticipe, AffaireDataImport, FichierImport, DocumentLie } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 import { getImportFormsData, getListeEmployeParUO, getDocImportParams, importAffaire } from '@/axioscalls.ts'
 import { ref, onMounted, watch } from 'vue'
 import { stringToPositiveInteger } from '@/jaxformsOpcAnnonceTravauxImport.ts'
@@ -421,8 +423,11 @@ const voirFichier = (idFichier: string): void => {
 const importDemande = async () => {
     console.log(fichiers.value)
     let fichierImport: FichierImport[] = []
+    let documentsLies: DocumentLie[] = []
     fichiers.value.forEach(fic => {
         const idfamille: number = fic.idFamille
+        const idDocGo: number = fic.idDocGo
+        const docGoLie: number = fic.docGoLie
         if (idfamille > 0) {
             const famille = docFamilleListe.value.find(item => item.id === idfamille)?.label ?? "famille inconnue"
             const idJaxforms: string = fic.idjf
@@ -433,6 +438,11 @@ const importDemande = async () => {
                 "filename": `${famille} - ${filenameJaxforms}`
             }
             fichierImport.push(fimp)
+        } else if (idDocGo > 0 && docGoLie === 1) {
+            const docl: DocumentLie = {
+                "idDocGo": idDocGo
+            }
+            documentsLies.push(docl)
         }
     });
 
@@ -446,7 +456,8 @@ const importDemande = async () => {
         "idActeurClient": idActeurClient.value,
         "idBatimentLie": aIdsBatimentGo.value,
         "idParcelleLie": aIdsParcelleGo.value,
-        "fichiers": fichierImport
+        "fichiers": fichierImport,
+        "documentsLies": documentsLies
     }
     console.log("affaireDataImport", JSON.stringify(affaireDataImport))
     if (nomAffaire.value.trim().length >= 5) {

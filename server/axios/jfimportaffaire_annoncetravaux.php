@@ -151,6 +151,16 @@ if ($idCaller > 0) {
                             }
                         }
 
+                        //Fichiers repérés comme déjà dans goéland
+                        $aDocumentsLies = $oData->documentsLies;
+                        foreach ($aDocumentsLies as $oDocumentLie) {
+                            $idDocument = $oDocumentLie->idDocGo;
+                            if ($idDocument > 0) {
+                                $sXmlData = "<Data><IdAffaire>$idAffOPCAnnonceTravaux</IdAffaire><IdDocument>$idDocument</IdDocument></Data>";
+                                $oAffOPCAnnonceTravaux->sauveDocumentLie($sXmlData);
+                            }
+                        }
+
                         //Données spécialisée Secteurs
                         $numSecteurOPC = '0';
                         $numSecteurARCH = '0';

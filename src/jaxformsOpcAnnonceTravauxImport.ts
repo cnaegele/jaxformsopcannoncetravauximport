@@ -23,6 +23,7 @@ export interface Fichier {
     infoDoublon: string
     idFamille: number
     idDocGo: number
+    docGoLie: number
 }
 
 export interface DataForms {
@@ -48,6 +49,9 @@ export interface FichierImport {
     idFamille: number
     filename: string
 }
+export interface DocumentLie {
+    idDocGo: number
+}
 export interface AffaireDataImport {
     idJaxformsDemande: string
     numeroJaxformsDemande: string
@@ -59,6 +63,7 @@ export interface AffaireDataImport {
     idBatimentLie: number[]
     idParcelleLie: number[]
     fichiers: FichierImport[]
+    documentsLies: DocumentLie[]
 }
 
 export interface EmployeParticipe {
