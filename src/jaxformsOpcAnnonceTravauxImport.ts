@@ -39,7 +39,7 @@ export interface DataForms {
     parcelle?: string
     idsParcelleGo?: string
     descriptionTravaux?: string
-    demandeur: Demandeur 
+    demandeur: Demandeur
     fichiers: Fichier[]
 }
 
@@ -58,7 +58,7 @@ export interface AffaireDataImport {
     idActeurClient: number
     idBatimentLie: number[]
     idParcelleLie: number[]
-    fichiers: FichierImport[]    
+    fichiers: FichierImport[]
 }
 
 export interface EmployeParticipe {
@@ -71,40 +71,40 @@ export function stringToPositiveInteger(str: string): number | null {
     if (!str || str.trim() === '') {
         return null;
     }
-    
+
     // Convertit en number
     const num = Number(str);
-    
+
     // Vérifie que c'est un nombre valide, un entier et positif
     if (isNaN(num) || !Number.isInteger(num) || num < 0) {
         return null;
     }
-    
+
     return num;
 }
 
 export function getUUIDAndStatus(
-  formsListe: JFFormsListe,
-  accessID: string
+    formsListe: JFFormsListe,
+    accessID: string
 ): { uuid: string | null; status: string | null } {
-  // Parcourir toutes les rows
-  for (const row of formsListe.row) {
-    // Chercher le field AccessID dans cette row
-    const accessIDField = row.field.find(f => f.id === "AccessID");
-    
-    // Si l'AccessID correspond
-    if (accessIDField?.value === accessID) {
-      // Récupérer UUID et Status
-      const uuidField = row.field.find(f => f.id === "UUID");
-      const statusField = row.field.find(f => f.id === "Status");
-      
-      return {
-        uuid: uuidField?.value ?? null,
-        status: statusField?.value ?? null
-      };
+    // Parcourir toutes les rows
+    for (const row of formsListe.row) {
+        // Chercher le field AccessID dans cette row
+        const accessIDField = row.field.find(f => f.id === "AccessID");
+
+        // Si l'AccessID correspond
+        if (accessIDField?.value === accessID) {
+            // Récupérer UUID et Status
+            const uuidField = row.field.find(f => f.id === "UUID");
+            const statusField = row.field.find(f => f.id === "Status");
+
+            return {
+                uuid: uuidField?.value ?? null,
+                status: statusField?.value ?? null
+            };
+        }
     }
-  }
-  
-  // Si aucune row ne correspond
-  return { uuid: '', status: '' };
+
+    // Si aucune row ne correspond
+    return { uuid: '', status: '' };
 }

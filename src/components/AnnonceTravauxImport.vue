@@ -134,15 +134,13 @@
                 </v-row>
                 <v-row dense>
                     <v-col cols="12" md="12" class="d-flex justify-center align-center">
-                        <v-btn v-if="statusJaxformsDemande === '40'" color="red-accent-3" variant="text" @click="importDemande()">
+                        <v-btn v-if="statusJaxformsDemande === '40'" color="red-accent-3" variant="text"
+                            @click="importDemande()">
                             Importer cette demande dans une nouvelle affaire goéland
                         </v-btn>
-    <span 
-      v-else 
-      class="text-red-accent-3 btn-like-text"
-    >
-      Cette demande n'a pas le statut "traité", import non autorisé
-    </span>
+                        <span v-else class="text-red-accent-3 btn-like-text">
+                            Cette demande n'a pas le statut "traité", import non autorisé
+                        </span>
                     </v-col>
                 </v-row>
             </v-card-text>
@@ -526,10 +524,11 @@ const receptionCallerInGroupGoelandManager = (jsonData: string) => {
 }
 
 .btn-like-text {
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: 0.0892857143em;
-  text-transform: none; /* ou 'uppercase' si vous voulez le même effet */
-  line-height: 1.75;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.0892857143em;
+    text-transform: none;
+    /* ou 'uppercase' si vous voulez le même effet */
+    line-height: 1.75;
 }
 </style>

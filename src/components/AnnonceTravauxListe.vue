@@ -28,8 +28,8 @@
             <v-divider></v-divider>
 
             <v-card-text class="pa-4">
-              <AnnonceTravauxData v-if="selectedItem" :id="selectedItem.id" :uuid="selectedItem.uuid" :status="selectedItem.status"
-                :ssServer="ssServer" @dataForms="receptionDataForms" />
+              <AnnonceTravauxData v-if="selectedItem" :id="selectedItem.id" :uuid="selectedItem.uuid"
+                :status="selectedItem.status" :ssServer="ssServer" @dataForms="receptionDataForms" />
             </v-card-text>
 
             <v-divider></v-divider>
@@ -178,7 +178,7 @@ import { getIdAffaireGoeland } from '@/axioscalls.ts'
 interface GoFormsListe {
   id?: string
   uuid?: string
-  status?:string
+  status?: string
   created?: string
   lastupdate?: string
   localisation?: string
