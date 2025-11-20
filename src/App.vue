@@ -1,7 +1,7 @@
 <template>
   <div v-if="messageErreur === ''">
     <AnnonceTravauxListe v-if="idjf === ''" :ssServer="ssServer" :demandestatus="demandesStatus"></AnnonceTravauxListe>
-    <AnnonceTravauxData v-else-if="bdata" :id="idjf" :uuid="uuidjf" :ssServer="ssServer"
+    <AnnonceTravauxData v-else-if="bdata" :id="idjf" :uuid="uuidjf" status="" :ssServer="ssServer"
       @dataForms="receptionDataForms" />
     <div v-if="bimport">
       <v-card>
@@ -35,6 +35,7 @@
 </template>
 
 <script setup lang="ts">
+import type { DataForms } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 import { stringToPositiveInteger } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 import { ref } from 'vue'
 const ssServer = ref<string>('')
@@ -80,6 +81,10 @@ if (prmDemandesStatus !== null) {
 
 const receptionDataForms = (receptedJsonDataForms: string) => {
   jsonDataForms.value = receptedJsonDataForms
+  if (uuidjf.value === '') {
+    const dataForms: DataForms = JSON.parse(jsonDataForms.value)
+    uuidjf.value = dataForms.numeroDemande
+  }
   bdata.value = false
   bimport.value = true
 }

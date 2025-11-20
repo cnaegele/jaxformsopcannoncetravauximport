@@ -1,3 +1,5 @@
+import type { JFFormsListe } from '@/axioscalls.ts'
+
 interface Demandeur {
     societe?: string
     nom?: string
@@ -26,6 +28,7 @@ export interface Fichier {
 export interface DataForms {
     idDemande: string
     numeroDemande: string
+    status: string
     localisationRue?: string
     localisationNumero?: string
     idRueGo?: number
@@ -78,4 +81,30 @@ export function stringToPositiveInteger(str: string): number | null {
     }
     
     return num;
+}
+
+export function getUUIDAndStatus(
+  formsListe: JFFormsListe,
+  accessID: string
+): { uuid: string | null; status: string | null } {
+  // Parcourir toutes les rows
+  for (const row of formsListe.row) {
+    // Chercher le field AccessID dans cette row
+    const accessIDField = row.field.find(f => f.id === "AccessID");
+    
+    // Si l'AccessID correspond
+    if (accessIDField?.value === accessID) {
+      // Récupérer UUID et Status
+      const uuidField = row.field.find(f => f.id === "UUID");
+      const statusField = row.field.find(f => f.id === "Status");
+      
+      return {
+        uuid: uuidField?.value ?? null,
+        status: statusField?.value ?? null
+      };
+    }
+  }
+  
+  // Si aucune row ne correspond
+  return { uuid: '', status: '' };
 }

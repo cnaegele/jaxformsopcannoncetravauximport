@@ -134,9 +134,15 @@
                 </v-row>
                 <v-row dense>
                     <v-col cols="12" md="12" class="d-flex justify-center align-center">
-                        <v-btn color="red-accent-3" variant="text" @click="importDemande()">
+                        <v-btn v-if="statusJaxformsDemande === '40'" color="red-accent-3" variant="text" @click="importDemande()">
                             Importer cette demande dans une nouvelle affaire goéland
                         </v-btn>
+    <span 
+      v-else 
+      class="text-red-accent-3 btn-like-text"
+    >
+      Cette demande n'a pas le statut "traité", import non autorisé
+    </span>
                     </v-col>
                 </v-row>
             </v-card-text>
@@ -180,6 +186,7 @@ const messageErreur = ref<string | undefined>('')
 const jfFormsImportDataLoading = ref<boolean>(false);
 const idJaxformsDemande = ref<string>('')
 const numeroJaxformsDemande = ref<string>('')
+const statusJaxformsDemande = ref<string>('')
 const nomAffaire = ref<string>('');
 const nomAffaireRemarqueGo = ref<string>('');
 const descriptionAffaire = ref<string>('');
@@ -269,6 +276,7 @@ const loadDataImport = async () => {
 
         idJaxformsDemande.value = dataImportPropose.idDemande
         numeroJaxformsDemande.value = dataImportPropose.numeroDemande
+        statusJaxformsDemande.value = dataImportPropose.status
 
         //Nom affaire selon adresse
         let rueAdresseNomAffaire: string = ''
@@ -515,5 +523,13 @@ const receptionCallerInGroupGoelandManager = (jsonData: string) => {
 /* Pour le mode sombre */
 .v-theme--dark .border-b {
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn-like-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.0892857143em;
+  text-transform: none; /* ou 'uppercase' si vous voulez le même effet */
+  line-height: 1.75;
 }
 </style>

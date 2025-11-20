@@ -138,21 +138,25 @@
 </template>
 
 <script setup lang="ts">
-import type { JFFormsData, ApiResponseJFFD, Group } from '@/axioscalls.ts'
+import type { JFFormsData, ApiResponseJFFD, Group, ApiResponseJFFL } from '@/axioscalls.ts'
 import type { DataForms, Fichier } from '@/jaxformsOpcAnnonceTravauxImport.ts'
-import { getJFFormsData, getDataContentByGroupAndVarId } from '@/axioscalls.ts'
+import { getJFFormsData, getDataContentByGroupAndVarId, getJFFormsListe } from '@/axioscalls.ts'
+import { getUUIDAndStatus } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 import { ref, onMounted } from 'vue'
 
 interface Props {
   id: string
   uuid: string
+  status: string
   ssServer?: string
   ssPage?: string
+  ssPageListe? : string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   ssServer: '',
-  ssPage: '/goeland/jaxforms/axios/jfdata_annoncetravaux.php'
+  ssPage: '/goeland/jaxforms/axios/jfdata_annoncetravaux.php',
+  ssPageListe: '/goeland/jaxforms/axios/jfsearch_annoncetravaux.php'
 })
 
 interface ListeFichiers {
@@ -169,7 +173,7 @@ const nombreFichiers = ref<number>(0)
 const idsfichier = ref<string[]>([])
 const listeFichiers = ref<ListeFichiers[]>([])
 
-let dataForms: DataForms = {idDemande: '', numeroDemande: '', demandeur: {}, fichiers: []}
+let dataForms: DataForms = {idDemande: '', numeroDemande: '', status: '', demandeur: {}, fichiers: []}
 
 const emit = defineEmits<{
   (e: 'dataForms', jsonData: string): void
@@ -182,6 +186,7 @@ onMounted(() => {
 const loadData = async () => {
   dataForms.idDemande = props.id
   dataForms.numeroDemande = props.uuid
+  dataForms.status = props.status
   const jsonParamsD: string = `{"idformselement":"${props.id}"}`
   const responseD: ApiResponseJFFD = await getJFFormsData(props.ssServer, props.ssPage, jsonParamsD)
   const jfFormsData: JFFormsData | undefined = responseD.data
@@ -362,6 +367,18 @@ const loadData = async () => {
           }
         }
       }
+    }
+  }
+
+  if (dataForms.numeroDemande === '' || dataForms.status === '') {
+    //Appel direct du formulaire, pas de uuid et status retourné avec la methode data de l'API (SOI...!!!)
+    const jsonParamsL: string = `{"pagesize":500,"offset":0,"demandestatus":40}`
+    const responseL: ApiResponseJFFL = await getJFFormsListe(props.ssServer, props.ssPageListe, jsonParamsL)
+    //console.log("responseL de data", JSON.stringify(responseL))
+    if (responseL.data !== undefined) {
+      const result = getUUIDAndStatus(responseL.data, props.id)
+      dataForms.numeroDemande = result.uuid ?? ''
+      dataForms.status = result.status ?? ''
     }
   }
   emit('dataForms', JSON.stringify(dataForms))

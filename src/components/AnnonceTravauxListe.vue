@@ -28,7 +28,7 @@
             <v-divider></v-divider>
 
             <v-card-text class="pa-4">
-              <AnnonceTravauxData v-if="selectedItem" :id="selectedItem.id" :uuid="selectedItem.uuid"
+              <AnnonceTravauxData v-if="selectedItem" :id="selectedItem.id" :uuid="selectedItem.uuid" :status="selectedItem.status"
                 :ssServer="ssServer" @dataForms="receptionDataForms" />
             </v-card-text>
 
@@ -178,6 +178,7 @@ import { getIdAffaireGoeland } from '@/axioscalls.ts'
 interface GoFormsListe {
   id?: string
   uuid?: string
+  status?:string
   created?: string
   lastupdate?: string
   localisation?: string
@@ -276,6 +277,7 @@ const loadData = async () => {
             const goFormsListe: GoFormsListe = {
               id: getListeFieldValue(therow, 'AccessID') ?? '?',
               uuid: getListeFieldValue(therow, 'UUID') ?? '?',
+              status: getListeFieldValue(therow, 'Status') ?? '?',
               created: getListeFieldValue(therow, 'Created') ?? '',
               lastupdate: getListeFieldValue(therow, 'LastUpdate'),
               localisation: `${localisationRue?.toString()} ${localisationNumRue?.toString()}`,
