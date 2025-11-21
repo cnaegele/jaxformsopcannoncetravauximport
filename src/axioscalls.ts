@@ -83,7 +83,7 @@ export interface ApiResponseNumStr {
 export interface ApiResponseIFD {
     success?: boolean;
     message?: string;
-    data?: DataForms;
+    data?: DataForms | string;
 }
 
 //Interface pour les liste d'employe par unité

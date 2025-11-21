@@ -3,7 +3,7 @@
   <v-app>
     <v-main>
       <v-app-bar color="primary" prominent density="compact" app>
-        <v-toolbar-title>Annonces travaux. Import demande jaxForms vers affaire goéland</v-toolbar-title>
+        <v-toolbar-title>Annonces travaux. Import demande jaxForms vers affaire goéland&nbsp; <small>(version {{ version }})</small></v-toolbar-title>
 
         <v-spacer></v-spacer>
         <div style="position: absolute; right: 16px;">
@@ -174,6 +174,7 @@ import { ref, onMounted } from 'vue'
 import { getJFFormsListe, getListeFieldValue } from '@/axioscalls.ts'
 import { getJFFormsData, getDataContentByGroupAndVarId } from '@/axioscalls.ts'
 import { getIdAffaireGoeland } from '@/axioscalls.ts'
+import packageJson from '../../package.json'
 
 interface GoFormsListe {
   id?: string
@@ -194,7 +195,6 @@ interface Props {
   ssPageListe?: string
   ssPageData?: string
   ssPageIdAffGo?: string
-
 }
 const props = withDefaults(defineProps<Props>(), {
   pagesize: 100,
@@ -209,6 +209,7 @@ const props = withDefaults(defineProps<Props>(), {
 //Data caller
 const callerInformation = ref<UserInfo | null | undefined>(null)
 
+const version = ref<string>(packageJson.version)
 const jfFormsListeDataLoading = ref<boolean>(false);
 const jfFormsListeLoaded = ref<boolean>(false);
 let jfFormsListe: JFFormsListe

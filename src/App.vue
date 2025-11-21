@@ -7,7 +7,7 @@
       <v-card>
         <v-card-title class="d-flex align-center pe-2">
           <v-icon icon="mdi-file-document" class="me-2"></v-icon>
-          Préparation import de la demande {{ uuidjf }} dans une affaire OPC - Annonce travaux
+          Préparation import de la demande {{ uuidjf }} dans une affaire OPC - Annonce travaux&nbsp;<small>(version {{ version }})</small>
 
           <v-spacer></v-spacer>
 
@@ -38,11 +38,13 @@
 import type { DataForms } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 import { stringToPositiveInteger } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 import { ref } from 'vue'
+import packageJson from '../package.json'
 const ssServer = ref<string>('')
 if (import.meta.env.DEV) {
   ssServer.value = 'https://mygolux.lausanne.ch'
 }
 
+const version = ref<string>(packageJson.version)
 const jsonDataForms = ref<string>('')
 const bdata = ref<boolean>(true)
 const bimport = ref<boolean>(false)

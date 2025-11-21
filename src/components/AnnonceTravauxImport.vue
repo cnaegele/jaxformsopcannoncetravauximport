@@ -40,6 +40,12 @@
                     <v-col cols="12" md="12">
                         <!-- En-tête Client -->
                         <div class="d-flex align-center mb-3">
+                            <v-tooltip>
+                                <template v-slot:activator="{ props }">
+                                    <v-btn icon="mdi-eye" variant="text" v-bind="props" size="small"></v-btn>
+                                </template>
+                                <div style="white-space: pre-line">{{ tooltipsclient }}</div>
+                            </v-tooltip>
                             <span class="text-subtitle-2 text-grey-darken-1 mr-2">Client :</span>
                             <span class="font-weight-medium mr-4">{{ nomActeurClient }}</span>
 
@@ -112,7 +118,7 @@
                                         document goéland {{ fichier.idDocGo }}
                                         <v-checkbox v-model="fichier.docGoLie" :true-value="1" :false-value="0"
                                             label="Lier" class="ml-2" hide-details />
-                                    </span> 
+                                    </span>
                                     <span v-if="fichier.idDocGo == 0 && fichier.infoDoublon !== ''">
                                         {{ fichier.infoDoublon }}
                                     </span>
@@ -205,6 +211,7 @@ const nombreFichiers = ref<number>(0)
 const fichiers = ref<Fichier[]>([])
 const docFamilleListe = ref<[{ id: number, label: string }]>([{ id: 0, label: 'fichier pas importé' }])
 const docSizeMax = ref<number>(5000000)
+const tooltipsclient = ref<string>('')
 const mailtobody = ref<string>('')
 
 const emit = defineEmits<{
@@ -271,138 +278,146 @@ const loadDataImport = async () => {
 
     const responseID: ApiResponseIFD = await getImportFormsData(props.ssServer, props.ssPage, props.jsonDataForms)
     if (responseID.data !== undefined) {
-        const dataImportPropose: DataForms = responseID.data
+        const dataImportPropose: DataForms | string = responseID.data
         //console.log("dataImportPropose", dataImportPropose)
+        if (typeof (dataImportPropose) !== 'string') {
 
-        idJaxformsDemande.value = dataImportPropose.idDemande
-        numeroJaxformsDemande.value = dataImportPropose.numeroDemande
-        statusJaxformsDemande.value = dataImportPropose.status
+            idJaxformsDemande.value = dataImportPropose.idDemande
+            numeroJaxformsDemande.value = dataImportPropose.numeroDemande
+            statusJaxformsDemande.value = dataImportPropose.status
 
-        //Nom affaire selon adresse
-        let rueAdresseNomAffaire: string = ''
-        let localisationRue: string = ''
-        let localisationNumero: string = ''
-        let idRueGo: number = 0
-        let idAdresseGo: number = 0
-        if (dataImportPropose.rueAdresseNomAffaire !== undefined) {
-            rueAdresseNomAffaire = dataImportPropose.rueAdresseNomAffaire
-        }
-        if (dataImportPropose.localisationRue !== undefined) {
-            localisationRue = dataImportPropose.localisationRue
-        }
-        if (dataImportPropose.localisationNumero !== undefined) {
-            localisationNumero = dataImportPropose.localisationNumero
-        }
-        if (dataImportPropose.idRueGo !== undefined) {
-            idRueGo = dataImportPropose.idRueGo
-        }
-        if (dataImportPropose.idAdresseGo !== undefined) {
-            idAdresseGo = dataImportPropose.idAdresseGo
-        }
-        if (rueAdresseNomAffaire !== '') {
-            nomAffaire.value = rueAdresseNomAffaire
-            if (localisationNumero !== '' && idAdresseGo === 0) {
-                nomAffaireRemarqueGo.value = 'adresse introuvable dans goéland'
+            //Nom affaire selon adresse
+            let rueAdresseNomAffaire: string = ''
+            let localisationRue: string = ''
+            let localisationNumero: string = ''
+            let idRueGo: number = 0
+            let idAdresseGo: number = 0
+            if (dataImportPropose.rueAdresseNomAffaire !== undefined) {
+                rueAdresseNomAffaire = dataImportPropose.rueAdresseNomAffaire
             }
-        } else {
-            if (localisationRue !== '') {
-                nomAffaireRemarqueGo.value = 'rue introuvable dans goéland'
-                nomAffaire.value = localisationRue
-                if (localisationNumero !== '') {
-                    nomAffaire.value += ` ${localisationNumero}`
+            if (dataImportPropose.localisationRue !== undefined) {
+                localisationRue = dataImportPropose.localisationRue
+            }
+            if (dataImportPropose.localisationNumero !== undefined) {
+                localisationNumero = dataImportPropose.localisationNumero
+            }
+            if (dataImportPropose.idRueGo !== undefined) {
+                idRueGo = dataImportPropose.idRueGo
+            }
+            if (dataImportPropose.idAdresseGo !== undefined) {
+                idAdresseGo = dataImportPropose.idAdresseGo
+            }
+            if (rueAdresseNomAffaire !== '') {
+                nomAffaire.value = rueAdresseNomAffaire
+                if (localisationNumero !== '' && idAdresseGo === 0) {
+                    nomAffaireRemarqueGo.value = 'adresse introuvable dans goéland'
+                }
+            } else {
+                if (localisationRue !== '') {
+                    nomAffaireRemarqueGo.value = 'rue introuvable dans goéland'
+                    nomAffaire.value = localisationRue
+                    if (localisationNumero !== '') {
+                        nomAffaire.value += ` ${localisationNumero}`
+                    }
                 }
             }
-        }
 
-        //Description
-        if (dataImportPropose.descriptionTravaux !== undefined) {
-            descriptionAffaire.value = dataImportPropose.descriptionTravaux
-        }
-
-        //Client (acteur)
-        if (dataImportPropose.demandeur.idacteurGo !== undefined && dataImportPropose.demandeur.nomacteurGo !== undefined) {
-            if (dataImportPropose.demandeur.idacteurGo > 0) {
-                idActeurClient.value = dataImportPropose.demandeur.idacteurGo
-                nomActeurClient.value = dataImportPropose.demandeur.nomacteurGo
+            //Description
+            if (dataImportPropose.descriptionTravaux !== undefined) {
+                descriptionAffaire.value = dataImportPropose.descriptionTravaux
             }
-        }
-        //mailtobody pour demande de création d'acteur
-        const dataForms: DataForms = JSON.parse(props.jsonDataForms)
-        const societe: string = dataForms.demandeur.societe ?? ''
-        const nom: string = dataForms.demandeur.nom ?? ''
-        const prenom: string = dataForms.demandeur.prenom ?? ''
-        const rue: string = dataForms.demandeur.rue ?? ''
-        const numero: string = dataForms.demandeur.numero ?? ''
-        const npa: string = dataForms.demandeur.npa ?? ''
-        const localite: string = dataForms.demandeur.localite ?? ''
-        const email: string = dataForms.demandeur.email ?? ''
-        const telephone: string = dataForms.demandeur.telephone ?? ''
-        mailtobody.value = `Societé : ${societe}\nNom : ${nom}\nPrénom : ${prenom}\nRue numéro : ${rue} ${numero}\nNpa Localité : ${npa} ${localite}\nemail : ${email}\ntéléphone : ${telephone}`
 
-        //Fichiers
-        if (dataImportPropose.fichiers !== undefined) {
-            const docImportParams: ApiResponseDIP = await getDocImportParams(props.ssServer, props.ssPageDocImportParams)
-            if (docImportParams.data !== undefined) {
-                docSizeMax.value = docImportParams.data.sizemax
-                docImportParams.data.familles.forEach((famille) => {
-                    docFamilleListe.value.push({ "id": famille.id, "label": famille.label })
-                })
-                //console.log("docFamilleListe", docFamilleListe.value)
+            //Client (acteur)
+            if (dataImportPropose.demandeur.idacteurGo !== undefined && dataImportPropose.demandeur.nomacteurGo !== undefined) {
+                if (dataImportPropose.demandeur.idacteurGo > 0) {
+                    idActeurClient.value = dataImportPropose.demandeur.idacteurGo
+                    nomActeurClient.value = dataImportPropose.demandeur.nomacteurGo
+                }
             }
-            //console.log("docImportParams", docImportParams)
-            fichiers.value = dataImportPropose.fichiers
-            nombreFichiers.value = fichiers.value.length
-        }
+            const dataForms: DataForms = JSON.parse(props.jsonDataForms)
+            const societe: string = dataForms.demandeur.societe ?? ''
+            const nom: string = dataForms.demandeur.nom ?? ''
+            const prenom: string = dataForms.demandeur.prenom ?? ''
+            const rue: string = dataForms.demandeur.rue ?? ''
+            const numero: string = dataForms.demandeur.numero ?? ''
+            const npa: string = dataForms.demandeur.npa ?? ''
+            const localite: string = dataForms.demandeur.localite ?? ''
+            const email: string = dataForms.demandeur.email ?? ''
+            const telephone: string = dataForms.demandeur.telephone ?? ''
 
-        //Liens bâtiments, parcelles
-        let idsBatimentGo: string = '', nbrBatiment: number = 0
-        let idsParcelleGo: string = '', nbrParcelle: number = 0
-        if (dataImportPropose.idsBatimentGo !== undefined) {
-            idsBatimentGo = dataImportPropose.idsBatimentGo.toString()
-        }
-        if (dataImportPropose.idsParcelleGo !== undefined) {
-            idsParcelleGo = dataImportPropose.idsParcelleGo.toString()
-        }
-        if (idsBatimentGo === '' && idsParcelleGo === '') {
-            liensBatimentsParcelles.value = 'aucun bâtiment lié, aucune parcelle liée'
+            //mailtobody pour demande de création d'acteur
+            mailtobody.value = `Societé : ${societe}\nNom : ${nom}\nPrénom : ${prenom}\nRue numéro : ${rue} ${numero}\nNpa Localité : ${npa} ${localite}\nemail : ${email}\ntéléphone : ${telephone}`
+
+            //tooltipsclient pour information saisie formulaire
+            tooltipsclient.value = `Données demandeur du formulaire :\n${mailtobody.value}`
+
+            //Fichiers
+            if (dataImportPropose.fichiers !== undefined) {
+                const docImportParams: ApiResponseDIP = await getDocImportParams(props.ssServer, props.ssPageDocImportParams)
+                if (docImportParams.data !== undefined) {
+                    docSizeMax.value = docImportParams.data.sizemax
+                    docImportParams.data.familles.forEach((famille) => {
+                        docFamilleListe.value.push({ "id": famille.id, "label": famille.label })
+                    })
+                    //console.log("docFamilleListe", docFamilleListe.value)
+                }
+                //console.log("docImportParams", docImportParams)
+                fichiers.value = dataImportPropose.fichiers
+                nombreFichiers.value = fichiers.value.length
+            }
+
+            //Liens bâtiments, parcelles
+            let idsBatimentGo: string = '', nbrBatiment: number = 0
+            let idsParcelleGo: string = '', nbrParcelle: number = 0
+            if (dataImportPropose.idsBatimentGo !== undefined) {
+                idsBatimentGo = dataImportPropose.idsBatimentGo.toString()
+            }
+            if (dataImportPropose.idsParcelleGo !== undefined) {
+                idsParcelleGo = dataImportPropose.idsParcelleGo.toString()
+            }
+            if (idsBatimentGo === '' && idsParcelleGo === '') {
+                liensBatimentsParcelles.value = 'aucun bâtiment lié, aucune parcelle liée'
+            } else {
+                if (idsBatimentGo !== '') {
+                    const aIdBat: string[] = idsBatimentGo.split(",");
+                    nbrBatiment = aIdBat.length
+                    aIdBat.forEach((sid) => {
+                        const idbat = stringToPositiveInteger(sid)
+                        if (idbat !== null) {
+                            aIdsBatimentGo.value.push(idbat)
+                        }
+                    })
+                }
+                if (idsParcelleGo !== '') {
+                    const aIdPar: string[] = idsParcelleGo.split(",");
+                    nbrParcelle = aIdPar.length
+                    aIdPar.forEach((sid) => {
+                        const idpar = stringToPositiveInteger(sid)
+                        if (idpar !== null) {
+                            aIdsParcelleGo.value.push(idpar)
+                        }
+                    })
+                }
+                if (nbrBatiment === 0) {
+                    liensBatimentsParcelles.value = 'aucun bâtiment lié, '
+                } else if (nbrBatiment === 1) {
+                    liensBatimentsParcelles.value = '1 bâtiment lié, '
+                } else {
+                    liensBatimentsParcelles.value = `${nbrBatiment} bâtiments liés, `
+                }
+                if (nbrParcelle === 0) {
+                    liensBatimentsParcelles.value = 'aucune parcelle liée, '
+                } else if (nbrParcelle === 1) {
+                    liensBatimentsParcelles.value += '1 parcelle liée, '
+                } else {
+                    liensBatimentsParcelles.value += `${nbrParcelle} parcelles liées, `
+                }
+            }
         } else {
-            if (idsBatimentGo !== '') {
-                const aIdBat: string[] = idsBatimentGo.split(",");
-                nbrBatiment = aIdBat.length
-                aIdBat.forEach((sid) => {
-                    const idbat = stringToPositiveInteger(sid)
-                    if (idbat !== null) {
-                        aIdsBatimentGo.value.push(idbat)
-                    }
-                })
-            }
-            if (idsParcelleGo !== '') {
-                const aIdPar: string[] = idsParcelleGo.split(",");
-                nbrParcelle = aIdPar.length
-                aIdPar.forEach((sid) => {
-                    const idpar = stringToPositiveInteger(sid)
-                    if (idpar !== null) {
-                        aIdsParcelleGo.value.push(idpar)
-                    }
-                })
-            }
-            if (nbrBatiment === 0) {
-                liensBatimentsParcelles.value = 'aucun bâtiment lié, '
-            } else if (nbrBatiment === 1) {
-                liensBatimentsParcelles.value = '1 bâtiment lié, '
-            } else {
-                liensBatimentsParcelles.value = `${nbrBatiment} bâtiments liés, `
-            }
-            if (nbrParcelle === 0) {
-                liensBatimentsParcelles.value = 'aucune parcelle liée, '
-            } else if (nbrParcelle === 1) {
-                liensBatimentsParcelles.value += '1 parcelle liée, '
-            } else {
-                liensBatimentsParcelles.value += `${nbrParcelle} parcelles liées, `
-            }
+            messageErreur.value = dataImportPropose
         }
+        jfFormsImportDataLoading.value = false
     }
-    jfFormsImportDataLoading.value = false
 }
 
 const supprimeClient = () => {
