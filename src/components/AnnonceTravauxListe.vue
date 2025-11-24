@@ -98,7 +98,7 @@
 
             <v-text-field v-model.number="numeroFormulaire" type="number" :min="1" :max="999999"
               label="Numéro formulaire" density="compact" variant="outlined" hide-details clearable class="me-2"
-              style="max-width: 200px;" @keyup.enter="loadData">
+              style="max-width: 200px;" @keyup.enter="numFormData">
               <template v-slot:append-inner>
                 <v-icon icon="mdi-eye" @click="numFormData" :disabled="!numeroFormulaire" class="me-2"
                   style="cursor: pointer;"></v-icon>
