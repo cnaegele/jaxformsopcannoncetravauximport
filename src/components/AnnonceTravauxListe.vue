@@ -101,9 +101,9 @@
               style="max-width: 200px;" @keyup.enter="numFormData">
               <template v-slot:append-inner>
                 <v-icon icon="mdi-eye" @click="numFormData" :disabled="!numeroFormulaire" class="me-2"
-                  style="cursor: pointer;"></v-icon>
+                  style="cursor: pointer;" title="détail du formulaire"></v-icon>
                 <v-icon icon="mdi-import" @click="numFormImport" :disabled="!numeroFormulaire" class="me-2"
-                  style="cursor: pointer;"></v-icon>
+                  style="cursor: pointer;" title="préparation import"></v-icon>
               </template>
             </v-text-field>
 
