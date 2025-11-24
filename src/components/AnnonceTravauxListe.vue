@@ -258,6 +258,7 @@ onMounted(() => {
 })
 
 const loadData = async () => {
+  affFormsListe.value = []
   switch (demandestatus.value) {
     case 0:
       libelleStatus.value = ''
