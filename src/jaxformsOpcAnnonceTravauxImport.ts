@@ -113,3 +113,29 @@ export function getUUIDAndStatus(
     // Si aucune row ne correspond
     return { uuid: '', status: '' };
 }
+
+export function getIDAndStatus(
+    formsListe: JFFormsListe,
+    uuid: string
+): { id: string | null; status: string | null } {
+    // Parcourir toutes les rows
+    for (const row of formsListe.row) {
+        // Chercher le field UUID dans cette row
+        const uUIDField = row.field.find(f => f.id === "UUID");
+
+        // Si l'UUID correspond
+        if (uUIDField?.value === uuid) {
+            // Récupérer AccessID et Status
+            const accesidField = row.field.find(f => f.id === "AccessID");
+            const statusField = row.field.find(f => f.id === "Status");
+
+            return {
+                id: accesidField?.value ?? null,
+                status: statusField?.value ?? null
+            };
+        }
+    }
+
+    // Si aucune row ne correspond
+    return { id: '', status: '' };
+}

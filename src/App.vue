@@ -1,6 +1,6 @@
 <template>
   <div v-if="messageErreur === ''">
-    <AnnonceTravauxListe v-if="idjf === ''" :ssServer="ssServer" :demandestatus="demandesStatus"></AnnonceTravauxListe>
+    <AnnonceTravauxListe v-if="idjf === '' && uuidjf === ''" :ssServer="ssServer" :demandestatus="demandesStatus"></AnnonceTravauxListe>
     <AnnonceTravauxData v-else-if="bdata" :id="idjf" :uuid="uuidjf" status="" :ssServer="ssServer"
       @dataForms="receptionDataForms" />
     <div v-if="bimport">
@@ -32,6 +32,7 @@
       </v-card>
     </div>
   </div>
+  <div v-else id="divErreur">{{ messageErreur }}</div>
 </template>
 
 <script setup lang="ts">

@@ -3,7 +3,8 @@
   <v-app>
     <v-main>
       <v-app-bar color="primary" prominent density="compact" app>
-        <v-toolbar-title>Annonces travaux. Import demande jaxForms vers affaire goéland&nbsp; <small>(version {{ version }})</small></v-toolbar-title>
+        <v-toolbar-title>Annonces travaux. Import demande jaxForms vers affaire goéland&nbsp; <small>(version {{ version
+            }})</small></v-toolbar-title>
 
         <v-spacer></v-spacer>
         <div style="position: absolute; right: 16px;">
@@ -91,10 +92,24 @@
 
             <v-spacer></v-spacer>
 
+            <v-select v-model="demandestatus" :items="statusItems" item-title="text" item-value="id" label="Statut"
+              density="compact" variant="outlined" hide-details class="me-2" style="max-width: 150px;"
+              @update:modelValue="loadData"></v-select>
+
+            <v-text-field v-model.number="numeroFormulaire" type="number" :min="1" :max="999999"
+              label="Numéro formulaire" density="compact" variant="outlined" hide-details clearable class="me-2"
+              style="max-width: 200px;" @keyup.enter="loadData">
+              <template v-slot:append-inner>
+                <v-icon icon="mdi-eye" @click="numFormData" :disabled="!numeroFormulaire" class="me-2"
+                  style="cursor: pointer;"></v-icon>
+                <v-icon icon="mdi-import" @click="numFormImport" :disabled="!numeroFormulaire" class="me-2"
+                  style="cursor: pointer;"></v-icon>
+              </template>
+            </v-text-field>
+
             <v-text-field v-model="search" density="compact" label="Rechercher" prepend-inner-icon="mdi-magnify"
               variant="outlined" flat hide-details single-line clearable></v-text-field>
           </v-card-title>
-
           <v-divider></v-divider>
 
           <v-data-table :headers="headers" :items="affFormsListe" :search="search" item-value="id"
@@ -176,6 +191,11 @@ import { getJFFormsData, getDataContentByGroupAndVarId } from '@/axioscalls.ts'
 import { getIdAffaireGoeland } from '@/axioscalls.ts'
 import packageJson from '../../package.json'
 
+interface StatusItem {
+  id: number
+  text: string
+}
+
 interface GoFormsListe {
   id?: string
   uuid?: string
@@ -209,6 +229,12 @@ const props = withDefaults(defineProps<Props>(), {
 //Data caller
 const callerInformation = ref<UserInfo | null | undefined>(null)
 
+const statusItems = ref<StatusItem[]>([
+  { id: 40, text: 'traité' },
+  { id: 0, text: 'tous' }
+])
+
+const numeroFormulaire = ref<number | null>(null)
 const version = ref<string>(packageJson.version)
 const jfFormsListeDataLoading = ref<boolean>(false);
 const jfFormsListeLoaded = ref<boolean>(false);
@@ -226,21 +252,23 @@ const selecteduuid = ref<string>('')
 const prepareImportDirect = ref<boolean>(false)
 
 const libelleStatus = ref<string>('')
-switch (props.demandestatus) {
-  case 0:
-    break;
-  case 40:
-    libelleStatus.value = ' traitées'
-    break;
-  default:
-    libelleStatus.value = ` (statut ${demandestatus.value.toString()})`
-}
 
 onMounted(() => {
   loadData();
 })
 
 const loadData = async () => {
+  switch (demandestatus.value) {
+    case 0:
+      libelleStatus.value = ''
+      break;
+    case 40:
+      libelleStatus.value = ' traitées'
+      break;
+    default:
+      libelleStatus.value = ` (statut ${demandestatus.value.toString()})`
+  }
+
   jfFormsListeDataLoading.value = true
   const jsonParamsL: string = `{"pagesize":${pageSize.value},"offset":${offset.value},"demandestatus":${demandestatus.value}}`
   const responseL: ApiResponseJFFL = await getJFFormsListe(props.ssServer, props.ssPageListe, jsonParamsL)
@@ -326,9 +354,11 @@ const formatDate = (dateString?: string) => {
 }
 
 const viewDetails = (item: GoFormsListe) => {
+  console.log(item)
   selectedItem.value = item
   selecteduuid.value = item.uuid ?? ''
   dialogFormsData.value = true
+
 }
 
 const receptionDataForms = (receptedJsonDataForms: string) => {
@@ -362,5 +392,17 @@ const receptionCallerInfo = (jsonData: string) => {
   if (retCallerInformation.value.success) {
     callerInformation.value = retCallerInformation.value.data
   }
+}
+
+const numFormData = () => {
+  prepareImportDirect.value = false;
+  const formDemande: GoFormsListe = { id: '', uuid: numeroFormulaire.value?.toString(), status: '' }
+  viewDetails(formDemande)
+}
+
+const numFormImport = () => {
+  prepareImportDirect.value = true;
+  const formDemande: GoFormsListe = { id: '', uuid: numeroFormulaire.value?.toString(), status: '' }
+  viewDetails(formDemande)
 }
 </script>
