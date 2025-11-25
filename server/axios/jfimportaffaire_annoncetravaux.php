@@ -277,9 +277,11 @@ if ($idCaller > 0) {
 }
 if ($messageErreur === '') {
     echo $idAffOPCAnnonceTravaux;
+    $oJaxForms->putStatusArchives($idJaxformsDemande);
 } else {
     if ($idAffOPCAnnonceTravaux > 0) {
         echo "AFFAIRE CREEE: $idAffOPCAnnonceTravaux\n$messageErreur";
+        $oJaxForms->putStatusArchives($idJaxformsDemande);
     } else {
         echo $messageErreur;
     }

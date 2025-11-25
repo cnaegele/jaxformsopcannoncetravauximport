@@ -9,6 +9,7 @@ class CNJaxForms {
     protected $urlSearch;
     protected $urlData;
     protected $urlFileAttachment;
+    protected $urlWorkflow;
     protected $typeReturnData; //json (défaut) | xml | object
     protected $typeReturnSearch; //json (défaut) | object
 
@@ -28,6 +29,7 @@ class CNJaxForms {
         $this->typeReturnSearch = $typeReturnSearch;
         $this->urlToken = "$this->server/formservice/services/rest/auth/token";
         $this->urlSearch = "$this->server/formservice/services/rest/search/forms/$this->idForms";
+        $this->urlWorkflow = "$this->server/formservice/services/rest/workflow/perform/completed_archived";
         if ($this->typeReturnData == "object") {
             $retData = "json";
         } else {
@@ -206,5 +208,44 @@ class CNJaxForms {
             'size' => $fileSize,
             'http_code' => $httpCode
         ];
+    }
+
+    function putStatusArchives($idFormsElement, $accessToken = '') {
+        if (!$accessToken) {
+            $jfToken = $this->getToken();
+            $accessToken = $jfToken['access_token'];
+        }
+        $url = $this->urlWorkflow;
+        $data = [
+            "formID" => $this->idForms,
+            "guid" => $idFormsElement
+        ];
+        $jsonData = json_encode($data);
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+            "Authorization: Bearer " . $accessToken,
+            "apikey: " . $this->apikey
+        ]);
+
+        curl_exec($ch);
+        if (curl_errno($ch)) {
+            $txtresponse = 'ERROR CURL:' . curl_error($ch);
+        } else {
+            $txtresponse = 'OK';
+        }
+        curl_close($ch);
+
+        $response = [ 'response' => $txtresponse];
+        if ($this->typeReturnData == "object") {
+            return json_decode($response, true);
+        } else {
+            return $response;
+        }
     }
 }
