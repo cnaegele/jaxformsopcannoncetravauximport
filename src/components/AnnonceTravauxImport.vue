@@ -106,7 +106,7 @@
                             </v-row>
                             <v-row dense v-for="(fichier, index) in fichiers" :key="fichier.idjf"
                                 class="px-4 align-center" :class="{ 'border-b': index < fichiers.length - 1 }">
-                                <v-col cols="12" md="6">{{ fichier.filename }}</v-col>
+                                <v-col cols="12" md="6">{{ index + 1 }}. {{ fichier.filename }}</v-col>
                                 <v-col cols="12" md="5" class="d-flex align-center">
                                     <span
                                         v-if="fichier.idDocGo === 0 && fichier.infoDoublon === '' && fichier.size <= docSizeMax">
