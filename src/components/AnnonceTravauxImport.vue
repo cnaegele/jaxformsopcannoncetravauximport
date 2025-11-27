@@ -13,6 +13,11 @@
         </div>
         <v-card v-else>
             <v-card-text>
+                <v-row dense v-if="statusJaxformsDemande !== '40'" justify="center">
+                    <v-col cols="12" md="12" class="text-center font-weight-bold text-red-accent-3 btn-like-text">
+                        Cette demande n'a pas le statut "traité", import non autorisé
+                    </v-col>
+                </v-row>
                 <v-row dense>
                     <v-col cols="12" md="8">
                         <v-text-field v-model="nomAffaire" label="Nom" :maxlength="100" counter="100"
