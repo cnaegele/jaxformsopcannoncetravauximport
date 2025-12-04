@@ -411,11 +411,11 @@ const loadDataImport = async () => {
                     liensBatimentsParcelles.value = `${nbrBatiment} bâtiments liés, `
                 }
                 if (nbrParcelle === 0) {
-                    liensBatimentsParcelles.value = 'aucune parcelle liée, '
+                    liensBatimentsParcelles.value += 'aucune parcelle liée'
                 } else if (nbrParcelle === 1) {
-                    liensBatimentsParcelles.value += '1 parcelle liée, '
+                    liensBatimentsParcelles.value += '1 parcelle liée'
                 } else {
-                    liensBatimentsParcelles.value += `${nbrParcelle} parcelles liées, `
+                    liensBatimentsParcelles.value += `${nbrParcelle} parcelles liées`
                 }
             }
         } else {
