@@ -1,7 +1,7 @@
 <template></template>
 
 <script setup lang="ts">
-import { ref, defineEmits, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 interface Props {
