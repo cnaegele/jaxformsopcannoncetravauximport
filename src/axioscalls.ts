@@ -33,7 +33,7 @@ export interface JFFormsListe {
 export interface ApiResponseJFFL {
     success?: boolean;
     message?: string;
-    data?: JFFormsListe;
+    data?: JFFormsListe | string;
 }
 
 //Interfaces pour les données d'un formulaire

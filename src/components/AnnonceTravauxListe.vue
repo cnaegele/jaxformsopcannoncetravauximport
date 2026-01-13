@@ -4,7 +4,7 @@
     <v-main>
       <v-app-bar color="primary" prominent density="compact" app>
         <v-toolbar-title>Annonces travaux. Import demande jaxForms vers affaire goéland&nbsp; <small>(version {{ version
-            }})</small></v-toolbar-title>
+        }})</small></v-toolbar-title>
 
         <v-spacer></v-spacer>
         <div style="position: absolute; right: 16px;">
@@ -273,53 +273,58 @@ const loadData = async () => {
   jfFormsListeDataLoading.value = true
   const jsonParamsL: string = `{"pagesize":${pageSize.value},"offset":${offset.value},"demandestatus":${demandestatus.value}}`
   const responseL: ApiResponseJFFL = await getJFFormsListe(props.ssServer, props.ssPageListe, jsonParamsL)
+  console.log('responseL', responseL)
   jfFormsListeLoaded.value = true
   console.log(responseL.data)
-  if (responseL.data !== undefined) {
-    jfFormsListe = responseL.data
-    pageSize.value = jfFormsListe.info.pageSize
-    hasNext.value = jfFormsListe.info.hasNext
-    totalSize.value = jfFormsListe.info.totalSize
-    size.value = jfFormsListe.info.size
-    offset.value = jfFormsListe.info.offset
-    for (let i = 0; i < size.value; i++) {
-      const therow: Row | undefined = jfFormsListe.row[i]
-      if (therow !== undefined) {
-        const idForms: string | undefined = getListeFieldValue(therow, 'AccessID')
-        if (idForms !== undefined) {
-          //Si une affaire goéland existe pour cet idForms, on affiche pas la ligne
-          const responseIdGo: ApiResponseNumber = await getIdAffaireGoeland(props.ssServer, props.ssPageIdAffGo, idForms)
-          if (responseIdGo.data === 0 || responseIdGo.data === undefined || responseIdGo.data === null) {
-            const jsonParamsD: string = `{"idformselement":"${idForms}"}`
-            const responseD: ApiResponseJFFD = await getJFFormsData(props.ssServer, props.ssPageData, jsonParamsD)
-            const jfFormsData: JFFormsData | undefined = responseD.data
-            let localisationRue: string | number | undefined
-            let localisationNumRue: string | number | undefined
-            let descriptionTravaux: string | number | undefined
-            let emailDemandeur: string | number | undefined
-            if (jfFormsData !== undefined) {
-              localisationRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_rue') ?? '?'
-              localisationNumRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_numeroDeRue') ?? ''
-              descriptionTravaux = getDataContentByGroupAndVarId(jfFormsData, 'information_projet', 'travaux_description') ?? '?'
-              emailDemandeur = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_email_proprietaire') ?? '?'
+  if (responseL.data !== undefined && responseL.data !== null && responseL.data !== '') {
+    if (typeof responseL.data !== "string") {
+      jfFormsListe = responseL.data
+      pageSize.value = jfFormsListe.info.pageSize
+      hasNext.value = jfFormsListe.info.hasNext
+      totalSize.value = jfFormsListe.info.totalSize
+      size.value = jfFormsListe.info.size
+      offset.value = jfFormsListe.info.offset
+      for (let i = 0; i < size.value; i++) {
+        const therow: Row | undefined = jfFormsListe.row[i]
+        if (therow !== undefined) {
+          const idForms: string | undefined = getListeFieldValue(therow, 'AccessID')
+          if (idForms !== undefined) {
+            //Si une affaire goéland existe pour cet idForms, on affiche pas la ligne
+            const responseIdGo: ApiResponseNumber = await getIdAffaireGoeland(props.ssServer, props.ssPageIdAffGo, idForms)
+            if (responseIdGo.data === 0 || responseIdGo.data === undefined || responseIdGo.data === null) {
+              const jsonParamsD: string = `{"idformselement":"${idForms}"}`
+              const responseD: ApiResponseJFFD = await getJFFormsData(props.ssServer, props.ssPageData, jsonParamsD)
+              const jfFormsData: JFFormsData | undefined = responseD.data
+              let localisationRue: string | number | undefined
+              let localisationNumRue: string | number | undefined
+              let descriptionTravaux: string | number | undefined
+              let emailDemandeur: string | number | undefined
+              if (jfFormsData !== undefined) {
+                localisationRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_rue') ?? '?'
+                localisationNumRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_numeroDeRue') ?? ''
+                descriptionTravaux = getDataContentByGroupAndVarId(jfFormsData, 'information_projet', 'travaux_description') ?? '?'
+                emailDemandeur = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_email_proprietaire') ?? '?'
+              }
+              //console.log(responseD)
+              const goFormsListe: GoFormsListe = {
+                id: getListeFieldValue(therow, 'AccessID') ?? '?',
+                uuid: getListeFieldValue(therow, 'UUID') ?? '?',
+                status: getListeFieldValue(therow, 'Status') ?? '?',
+                created: getListeFieldValue(therow, 'Created') ?? '',
+                lastupdate: getListeFieldValue(therow, 'LastUpdate'),
+                localisation: `${localisationRue?.toString()} ${localisationNumRue?.toString()}`,
+                descriptiontravaux: descriptionTravaux?.toString(),
+                emaildemandeur: emailDemandeur?.toString()
+              }
+              affFormsListe.value.push(goFormsListe)
             }
-            //console.log(responseD)
-            const goFormsListe: GoFormsListe = {
-              id: getListeFieldValue(therow, 'AccessID') ?? '?',
-              uuid: getListeFieldValue(therow, 'UUID') ?? '?',
-              status: getListeFieldValue(therow, 'Status') ?? '?',
-              created: getListeFieldValue(therow, 'Created') ?? '',
-              lastupdate: getListeFieldValue(therow, 'LastUpdate'),
-              localisation: `${localisationRue?.toString()} ${localisationNumRue?.toString()}`,
-              descriptiontravaux: descriptionTravaux?.toString(),
-              emaildemandeur: emailDemandeur?.toString()
-            }
-            affFormsListe.value.push(goFormsListe)
           }
         }
       }
     }
     jfFormsListeDataLoading.value = false
+  } else {
+    jfFormsListeDataLoading.value = false  
   }
 }
 
