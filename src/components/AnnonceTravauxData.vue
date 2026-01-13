@@ -196,7 +196,7 @@ const loadData = async () => {
     const jsonParamsL: string = `{"pagesize":500,"offset":0,"demandestatus":40}`
     const responseL: ApiResponseJFFL = await getJFFormsListe(props.ssServer, props.ssPageListe, jsonParamsL)
     console.log("responseL de data", JSON.stringify(responseL))
-    if (responseL.data !== undefined) {
+    if (responseL.data !== undefined && typeof responseL.data !== "string") {     
       const result = getIDAndStatus(responseL.data, dataForms.numeroDemande)
       dataForms.idDemande = result.id ?? ''
       dataForms.status = result.status ?? ''
@@ -394,7 +394,7 @@ const loadData = async () => {
       const jsonParamsL: string = `{"pagesize":500,"offset":0,"demandestatus":40}`
       const responseL: ApiResponseJFFL = await getJFFormsListe(props.ssServer, props.ssPageListe, jsonParamsL)
       //console.log("responseL de data", JSON.stringify(responseL))
-      if (responseL.data !== undefined) {
+      if (responseL.data !== undefined && typeof responseL.data !== "string") {
         const result = getUUIDAndStatus(responseL.data, dataForms.idDemande)
         dataForms.numeroDemande = result.uuid ?? ''
         dataForms.status = result.status ?? ''
