@@ -24,6 +24,7 @@ export interface Fichier {
     idFamille: number
     idDocGo: number
     docGoLie: number
+    consulte?: boolean
 }
 
 export interface DataForms {

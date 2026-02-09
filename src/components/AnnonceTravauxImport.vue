@@ -116,8 +116,9 @@
                                     <span
                                         v-if="fichier.idDocGo === 0 && fichier.infoDoublon === '' && fichier.size <= docSizeMax">
                                         <v-select v-model="fichier.idFamille" :items="docFamilleListe"
-                                            item-title="label" item-value="id" label="Famille" density="compact"
-                                            variant="outlined"></v-select>
+                                            :disabled="!fichier.consulte" item-title="label" item-value="id"
+                                            :label="fichier.consulte ? 'Famille' : 'Famille, activer en consultant le fichier'"
+                                            density="compact" variant="outlined" :style="{ minWidth: fichier.consulte ? 'auto' : '250px' }"></v-select>
                                     </span>
                                     <span v-if="fichier.idDocGo > 0" class="d-flex align-center">
                                         document goéland {{ fichier.idDocGo }}
@@ -135,11 +136,10 @@
                                 </v-col>
                                 <v-col cols="12" md="1">
                                     <v-btn icon="mdi-eye" variant="text" color="primary" size="small"
-                                        @click="voirFichier(fichier.idjf)"></v-btn>
+                                        @click="voirFichier(fichier)"></v-btn>
                                 </v-col>
                             </v-row>
                         </v-card>
-
                     </v-col>
                 </v-row>
                 <v-row dense>
@@ -368,6 +368,8 @@ const loadDataImport = async () => {
                 }
                 //console.log("docImportParams", docImportParams)
                 fichiers.value = dataImportPropose.fichiers
+                //Prêt pour autoriser le choix de la famille uniquement après consultation du fichier. mettre false au lieu de true
+                fichiers.value = dataImportPropose.fichiers.map(f => ({ ...f, consulte: true }))
                 nombreFichiers.value = fichiers.value.length
             }
 
@@ -437,7 +439,9 @@ const receptionActeur = (id: number, jsonData: string) => {
     choixActeur.value = false
 }
 
-const voirFichier = (idFichier: string): void => {
+const voirFichier = (fichier: Fichier): void => {
+    fichier.consulte = true
+    const idFichier: string = fichier.idjf
     window.open(`${props.ssServer}/goeland/jaxforms/jffileattachmentview_annoncetravaux.php?idfileattachment=${idFichier}`)
 }
 const importDemande = async () => {
