@@ -98,6 +98,19 @@
           </v-col>
         </v-row>
 
+        <v-row v-if="infofacturation !== ''">
+          <v-col cols="12" md="12">
+            <v-list-item density="compact">
+              <v-list-item-title class="text-body-2 text-grey">
+                Informations facturation
+              </v-list-item-title>
+              <v-list-item-subtitle class="text-body-1 font-weight-medium" style="white-space: pre-line;">
+                {{ infofacturation }}
+              </v-list-item-subtitle>
+            </v-list-item>
+          </v-col>
+        </v-row>
+
 
         <v-divider class="my-4"></v-divider>
 
@@ -173,11 +186,12 @@ const numeroECA = ref<string>('')
 const parcelle = ref<string>('')
 const descriptionTravaux = ref<string>('?')
 const demandeur = ref<string>('')
+const infofacturation = ref<string>('')
 const nombreFichiers = ref<number>(0)
 const idsfichier = ref<string[]>([])
 const listeFichiers = ref<ListeFichiers[]>([])
 
-let dataForms: DataForms = { idDemande: '', numeroDemande: '', status: '', demandeur: {}, fichiers: [] }
+let dataForms: DataForms = { idDemande: '', numeroDemande: '', status: '', demandeur: {}, infoFacturation: {}, fichiers: [] }
 
 const emit = defineEmits<{
   (e: 'dataForms', jsonData: string): void
@@ -196,7 +210,7 @@ const loadData = async () => {
     const jsonParamsL: string = `{"pagesize":500,"offset":0,"demandestatus":40}`
     const responseL: ApiResponseJFFL = await getJFFormsListe(props.ssServer, props.ssPageListe, jsonParamsL)
     console.log("responseL de data", JSON.stringify(responseL))
-    if (responseL.data !== undefined && typeof responseL.data !== "string") {     
+    if (responseL.data !== undefined && typeof responseL.data !== "string") {
       const result = getIDAndStatus(responseL.data, dataForms.numeroDemande)
       dataForms.idDemande = result.id ?? ''
       dataForms.status = result.status ?? ''
@@ -365,6 +379,106 @@ const loadData = async () => {
         demandeur.value += `\n${jfDemandeurEmailTel}`
       }
 
+      //Coordonnées facturation
+      let jfDemandeurCoordonneeFacturation: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_adresse_facturation')
+      if (jfDemandeurCoordonneeFacturation !== undefined) {
+        jfDemandeurCoordonneeFacturation = jfDemandeurCoordonneeFacturation.toString().trim()
+        if (jfDemandeurCoordonneeFacturation === 'oui') {
+          //Des données pour la facturation existent
+          let jfCoordFacturationNom: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_facturation', 'coordonnees_facturation_nom')
+          let jfCoordFacturationPrenom: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_facturation', 'coordonnees_facturation_prenom')
+          let jfCoordFacturationSociete: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_facturation', 'coordonnees_facturation_societe')
+          let jfCoordFacturationRue: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_facturation', 'coordonnees_facturation_rue')
+          let jfCoordFacturationNumero: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_facturation', 'coordonnees_facturation_numero')
+          let jfCoordFacturationNpa: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_facturation', 'coordonnees_facturation_npa')
+          let jfCoordFacturationLocalite: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_facturation', 'VAR_10')
+
+          if (jfCoordFacturationSociete !== undefined) {
+            jfCoordFacturationSociete = jfCoordFacturationSociete.toString().trim()
+            dataForms.infoFacturation.societe = jfCoordFacturationSociete
+            if (jfCoordFacturationSociete !== '') {
+              infofacturation.value = jfCoordFacturationSociete
+            }
+          }
+          let jfCoordFacturationNomPrenom: string = ''
+          if (jfCoordFacturationNom !== undefined) {
+            jfCoordFacturationNom = jfCoordFacturationNom.toString().trim()
+            if (jfCoordFacturationNom !== '') {
+              jfCoordFacturationNomPrenom = jfCoordFacturationNom
+              dataForms.infoFacturation.nom = jfCoordFacturationNom
+            }
+          }
+          if (jfCoordFacturationPrenom !== undefined) {
+            jfCoordFacturationPrenom = jfCoordFacturationPrenom.toString().trim()
+            if (jfCoordFacturationPrenom !== '') {
+              dataForms.infoFacturation.prenom = jfCoordFacturationPrenom
+              if (jfCoordFacturationNomPrenom !== '') {
+                jfCoordFacturationNomPrenom += ` ${jfCoordFacturationPrenom}`
+              } else {
+                jfCoordFacturationNomPrenom = jfCoordFacturationPrenom
+              }
+            }
+          }
+          if (jfCoordFacturationNomPrenom !== '') {
+            if (infofacturation.value !== '') {
+              infofacturation.value += `\n${jfCoordFacturationNomPrenom}`
+            } else {
+              infofacturation.value = jfCoordFacturationNomPrenom
+            }
+          }
+
+          if (infofacturation.value === '') {
+            infofacturation.value = '?'
+          }
+
+          let jfCoordFacturationRueNumero: string = ''
+          if (jfCoordFacturationRue !== undefined) {
+            jfCoordFacturationRue = jfCoordFacturationRue.toString().trim()
+            if (jfCoordFacturationRue !== '') {
+              dataForms.infoFacturation.rue = jfCoordFacturationRue
+              jfCoordFacturationRueNumero = jfCoordFacturationRue
+            }
+          }
+          if (jfCoordFacturationNumero !== undefined) {
+            jfCoordFacturationNumero = jfCoordFacturationNumero.toString().trim()
+            if (jfCoordFacturationNumero !== '') {
+              dataForms.infoFacturation.numero = jfCoordFacturationNumero
+              if (jfCoordFacturationRueNumero !== '') {
+                jfCoordFacturationRueNumero += ` ${jfCoordFacturationNumero}`
+              } else {
+                jfCoordFacturationRueNumero = jfCoordFacturationNumero
+              }
+            }
+          }
+          if (jfCoordFacturationRueNumero !== '') {
+            infofacturation.value += `\n${jfCoordFacturationRueNumero}`
+          }
+
+          let jfCoordFacturationNpaLocalite: string = ''
+          if (jfCoordFacturationNpa !== undefined) {
+            jfCoordFacturationNpa = jfCoordFacturationNpa.toString().trim()
+            if (jfCoordFacturationNpa !== '') {
+              dataForms.infoFacturation.npa = jfCoordFacturationNpa
+              jfCoordFacturationNpaLocalite = jfCoordFacturationNpa
+            }
+          }
+          if (jfCoordFacturationLocalite !== undefined) {
+            jfCoordFacturationLocalite = jfCoordFacturationLocalite.toString().trim()
+            if (jfCoordFacturationLocalite !== '') {
+              dataForms.infoFacturation.localite = jfCoordFacturationLocalite
+              if (jfCoordFacturationNpaLocalite !== '') {
+                jfCoordFacturationNpaLocalite += ` ${jfCoordFacturationLocalite}`
+              } else {
+                jfCoordFacturationNpaLocalite = jfCoordFacturationLocalite
+              }
+            }
+          }
+          if (jfCoordFacturationNpaLocalite !== '') {
+            infofacturation.value += `\n${jfCoordFacturationNpaLocalite}`
+          }
+        }
+      }
+
       //Fichiers
       const gFichiers: Group | undefined = jfFormsData.data.group.find(g => g.id === "GRP_3")
       if (gFichiers !== undefined) {
@@ -400,6 +514,7 @@ const loadData = async () => {
         dataForms.status = result.status ?? ''
       }
     }
+    console.log('emit dataForms')
     emit('dataForms', JSON.stringify(dataForms))
   }
 }

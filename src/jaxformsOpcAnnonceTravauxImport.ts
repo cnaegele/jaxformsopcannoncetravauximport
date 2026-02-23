@@ -13,6 +13,15 @@ interface Demandeur {
     idacteurGo?: number
     nomacteurGo?: string
 }
+interface InfoFacturation {
+    societe?: string
+    nom?: string
+    prenom?: string
+    rue?: string
+    numero?: string
+    npa?: string
+    localite?: string
+}
 export interface Fichier {
     idjf: string
     filename: string
@@ -42,6 +51,7 @@ export interface DataForms {
     idsParcelleGo?: string
     descriptionTravaux?: string
     demandeur: Demandeur
+    infoFacturation: InfoFacturation
     fichiers: Fichier[]
 }
 

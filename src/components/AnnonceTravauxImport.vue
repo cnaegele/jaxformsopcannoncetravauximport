@@ -27,8 +27,14 @@
                 </v-row>
                 <v-row dense>
                     <v-col cols="12" md="12">
-                        <v-text-field v-model="descriptionAffaire" label="Description" :maxlength="100" counter="100"
-                            variant="outlined"></v-text-field>
+                        <v-textarea v-model="descriptionAffaire" label="Description" :maxlength="100" counter="100"
+                            variant="outlined" auto-grow rows="1"></v-textarea>
+                    </v-col>
+                </v-row>
+                <v-row dense>
+                    <v-col cols="12" md="12">
+                        <v-textarea v-model="infoFacturation" label="Informations facturation" :maxlength="100" counter="100"
+                            variant="outlined" auto-grow rows="1"></v-textarea>
                     </v-col>
                 </v-row>
                 <v-row dense>
@@ -118,7 +124,8 @@
                                         <v-select v-model="fichier.idFamille" :items="docFamilleListe"
                                             :disabled="!fichier.consulte" item-title="label" item-value="id"
                                             :label="fichier.consulte ? 'Famille' : 'Famille, activer en consultant le fichier'"
-                                            density="compact" variant="outlined" :style="{ minWidth: fichier.consulte ? 'auto' : '250px' }"></v-select>
+                                            density="compact" variant="outlined"
+                                            :style="{ minWidth: fichier.consulte ? 'auto' : '250px' }"></v-select>
                                     </span>
                                     <span v-if="fichier.idDocGo > 0" class="d-flex align-center">
                                         document goéland {{ fichier.idDocGo }}
@@ -201,6 +208,7 @@ const statusJaxformsDemande = ref<string>('')
 const nomAffaire = ref<string>('');
 const nomAffaireRemarqueGo = ref<string>('');
 const descriptionAffaire = ref<string>('');
+const infoFacturation = ref<string>('');
 const aIdsBatimentGo = ref<number[]>([])
 const aIdsParcelleGo = ref<number[]>([])
 const liensBatimentsParcelles = ref<string>('');
@@ -241,7 +249,6 @@ watch(() => choixActeur.value, (newValue) => {
 
 const loadDataImport = async () => {
     jfFormsImportDataLoading.value = true
-    console.log('props.jsonDataForms', props.jsonDataForms)
 
     let gestionnaire: EmployeParticipe = { id: 0, nom: '-' }
     gestionnaireListeChoix.value.push(gestionnaire)
@@ -281,10 +288,11 @@ const loadDataImport = async () => {
         }
     }
 
+    //console.log('props.jsonDataForms',props.jsonDataForms)
     const responseID: ApiResponseIFD = await getImportFormsData(props.ssServer, props.ssPage, props.jsonDataForms)
     if (responseID.data !== undefined) {
         const dataImportPropose: DataForms | string = responseID.data
-        //console.log("dataImportPropose", dataImportPropose)
+        console.log("dataImportPropose", dataImportPropose)
         if (typeof (dataImportPropose) !== 'string') {
 
             idJaxformsDemande.value = dataImportPropose.idDemande
@@ -330,6 +338,15 @@ const loadDataImport = async () => {
             //Description
             if (dataImportPropose.descriptionTravaux !== undefined) {
                 descriptionAffaire.value = dataImportPropose.descriptionTravaux
+            }
+
+            //Informations facturation
+            if (Object.keys(dataImportPropose.infoFacturation).length > 0) {
+                //Il y a des information facturation
+                infoFacturation.value = 'selon informations facturation : infoFacturation'
+            } else {
+                //Information facturation selon demandeur
+               infoFacturation.value = 'selon données demandeur : demandeur'
             }
 
             //Client (acteur)
