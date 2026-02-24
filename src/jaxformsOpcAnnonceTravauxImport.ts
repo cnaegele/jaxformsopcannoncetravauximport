@@ -68,6 +68,7 @@ export interface AffaireDataImport {
     numeroJaxformsDemande: string
     nomAffaire: string
     descriptionAffaire: string
+    infoFacturation: string
     idEmployeGestionnaire: number
     idEmployeTechnicien: number
     idActeurClient: number

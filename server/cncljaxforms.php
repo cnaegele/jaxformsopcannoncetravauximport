@@ -15,12 +15,17 @@ class CNJaxForms {
 
     function __construct($jaxServer,
                          $idForms,
-                         $apikey = "eee68070-96aa-11ec-b909-0242ac120002",
-                         $client_id = "d8f73909-64ee-41b3-9464-161689b5b2f9",
-                         $client_secret = "fe07277d70a26e33213115eff6202e18",
+                         //$apikey = "eee68070-96aa-11ec-b909-0242ac120002", //vali
+                         //$client_id = "d8f73909-64ee-41b3-9464-161689b5b2f9", //vali
+                         //$client_secret = "fe07277d70a26e33213115eff6202e18", //vali
+                         //$apikey = "2732c83d-8a36-41d0-a43b-39512a58b09d", //prod
+                         $apikey = "f6f3bdb8-77f4-4ddb-99e1-b11d8bd0f02b", //prod
+                         $client_id = "2732c83d-8a36-41d0-a43b-39512a58b09d", //prod
+                         $client_secret = "521f348306c7b86c6b96060b8776ffaf", //prod
                          $typeReturnData = "json",
                          $typeReturnSearch = "json") {
         $this->server = "https://$jaxServer";
+        //$this->server = "https://api-vali.lausanne.ch"; //vali
         $this->idForms = $idForms;
         $this->apikey = $apikey;
         $this->client_id = $client_id;
@@ -66,18 +71,24 @@ class CNJaxForms {
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         if (curl_errno($ch)) {
-            throw new Exception("Erreur cURL: " . curl_error($ch));
+            return [
+                'message' => 'Erreur cURL: ' . curl_error($ch),
+                'access_token' => ''
+            ];
         }
         curl_close($ch);
 
         if ($httpCode !== 200) {
-            throw new Exception("Erreur HTTP: " . $httpCode);
+            return [
+                'message' => 'Erreur HTTP: ' . $httpCode,
+                'access_token' => ''
+            ];
         }
 
         return json_decode($response, true);
     }
 
-    function searchForms($accessToken = '', $pageSize = 10, $offset = 0, $demandestatus = 0) {
+    public function searchForms($accessToken = '', $pageSize = 10, $offset = 0, $demandestatus = 0) {
         if (!$accessToken) {
             $jfToken = $this->getToken();
             $accessToken = $jfToken['access_token'];
@@ -128,7 +139,7 @@ class CNJaxForms {
         }
     }
 
-    function dataForms($idFormsElement, $accessToken = '') {
+    public function dataForms($idFormsElement, $accessToken = '') {
         if (!$accessToken) {
             $jfToken = $this->getToken();
             $accessToken = $jfToken['access_token'];
@@ -168,7 +179,7 @@ class CNJaxForms {
         }
     }
 
-    function getFileAttachment($idFile, $accessToken = '') {
+    public function getFileAttachment($idFile, $accessToken = '') {
         if (!$accessToken) {
             $jfToken = $this->getToken();
             $accessToken = $jfToken['access_token'];
@@ -210,7 +221,7 @@ class CNJaxForms {
         ];
     }
 
-    function putStatusArchives($idFormsElement, $accessToken = '') {
+    public function putStatusArchives($idFormsElement, $accessToken = '') {
         if (!$accessToken) {
             $jfToken = $this->getToken();
             $accessToken = $jfToken['access_token'];

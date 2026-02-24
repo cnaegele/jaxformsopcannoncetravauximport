@@ -3,7 +3,7 @@ require_once '/data/dataweb/GoelandWeb/goeland/jaxforms/cncljaxforms.php';
 header("Access-Control-Allow-Origin: *");
 
 $oJaxForms = new CNJaxForms(
-     jaxServer: 'api-vali.lausanne.ch'
+     jaxServer: 'api.lausanne.ch'
     ,idForms: 'URB_dispense_permis_construire'
 );
 $bParamsOk = true;

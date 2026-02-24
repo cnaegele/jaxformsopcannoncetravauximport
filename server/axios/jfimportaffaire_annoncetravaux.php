@@ -33,13 +33,13 @@ if ($idCaller > 0) {
 
             if (preg_match('/^[a-zA-Z0-9-]{1,50}$/', $idJaxformsDemande)
                 && preg_match('/^[a-zA-Z0-9-]{1,50}$/', $uuidJaxformsDemande)) {
-                $dbgo = new DBGoeland();
                 $sSql = "cn_affaire_idjaxforms_get_idaffaire '$idJaxformsDemande'";
                 $dbgo->queryRetInt($sSql);
                 $idAffaireDeja = $dbgo->resInt;
                 if ($idAffaireDeja == 0) {
                     $nomAffaire = $oData->nomAffaire;
                     $description = $oData->descriptionAffaire;
+                    $infoFacturation = $oData->infoFacturation;
                     $sCode = calculSecurityCode($idCaller);
                     $oAffOPCAnnonceTravaux = new CNAffaire(0, true, $idCaller, $sCode);
                     $idAffOPCAnnonceTravaux = $oAffOPCAnnonceTravaux->reserveId($idTypeAffaire);
@@ -89,7 +89,7 @@ if ($idCaller > 0) {
 
                         //Fichiers
                         $oJaxForms = new CNJaxForms(
-                            jaxServer: 'api-vali.lausanne.ch'
+                            jaxServer: 'api.lausanne.ch'
                             ,idForms: 'URB_dispense_permis_construire'
                         );
                         $a_config_section_production = parse_ini_file('/data/config/goeland.ini', false);
@@ -187,7 +187,8 @@ if ($idCaller > 0) {
                         $sXmlDataSpec .= '<IdSecteurArch>' . $idSecteurArch . '</IdSecteurArch>';
                         $sXmlDataSpec .= '<BLogement></BLogement>';
                         $sXmlDataSpec .= '<BMonumentH></BMonumentH>';
-                        $sXmlDataSpec .= '<NumeroCamac></NumeroCamac><InfoFacturation></InfoFacturation>';
+                        $sXmlDataSpec .= '<NumeroCamac></NumeroCamac>';
+                        $sXmlDataSpec .= '<InfoFacturation>' . $infoFacturation . '</InfoFacturation>';
                         $sXmlDataSpec .= '</Specialisation></Data>';
                         $domD = new domdocument();
                         $domD->loadXML($sXmlDataSpec);
@@ -278,11 +279,28 @@ if ($idCaller > 0) {
 if ($messageErreur === '') {
     echo $idAffOPCAnnonceTravaux;
     $oJaxForms->putStatusArchives($idJaxformsDemande);
+    //Affaire "soumis à emoluments" par défaut et
+    //Stockage des json data du formulaire dans goéland
+    $jsonData = $oJaxForms->dataForms(idFormsElement: $idJaxformsDemande);
+    $jsonData = str_replace("'", "''", $jsonData);
+    $dbgo = new DBGoeland();
+    $sSql = "cn_affaire_taxe_horaire_sauve $idAffOPCAnnonceTravaux, 1";
+    $dbgo->queryRetNothing($sSql, 'W');
+    $sSql = "cn_affaire_idjaxforms_update_json_data $idAffOPCAnnonceTravaux, '$jsonData'";
+    $dbgo->queryRetNothing($sSql, 'W');
+    unset($dbgo);
 } else {
     if ($idAffOPCAnnonceTravaux > 0) {
         echo "AFFAIRE CREEE: $idAffOPCAnnonceTravaux\n$messageErreur";
         $oJaxForms->putStatusArchives($idJaxformsDemande);
-    } else {
+        //Stockage des json data du formulaire dans goéland
+        $jsonData = $oJaxForms->dataForms(idFormsElement: $idJaxformsDemande);
+        $jsonData = str_replace("'", "''", $jsonData);
+        $dbgo = new DBGoeland();
+        $sSql = "cn_affaire_idjaxforms_update_json_data $idAffOPCAnnonceTravaux, '$jsonData'";
+        $dbgo->queryRetNothing($sSql, 'W');
+        unset($dbgo);    }
+    else {
         echo $messageErreur;
     }
 }

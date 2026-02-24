@@ -341,12 +341,73 @@ const loadDataImport = async () => {
             }
 
             //Informations facturation
+            let infasociete: string = '', infanom: string = '', infaprenom: string = ''
+            let infarue: string = '', infanumero: string = '' ,infanpa: string = '', infalocalite: string = ''
+            let infanomprenom: string = '', infaruenumero: string = '', infanpalocalite: string = ''
             if (Object.keys(dataImportPropose.infoFacturation).length > 0) {
                 //Il y a des information facturation
-                infoFacturation.value = 'selon informations facturation : infoFacturation'
+                if (dataImportPropose.infoFacturation.societe !== undefined) {
+                    infasociete = dataImportPropose.infoFacturation.societe    
+                }
+                if (dataImportPropose.infoFacturation.nom !== undefined) {
+                    infanom = dataImportPropose.infoFacturation.nom    
+                }
+                if (dataImportPropose.infoFacturation.prenom !== undefined) {
+                    infaprenom = dataImportPropose.infoFacturation.prenom    
+                }
+                if (dataImportPropose.infoFacturation.rue !== undefined) {
+                    infarue = dataImportPropose.infoFacturation.rue    
+                }
+                if (dataImportPropose.infoFacturation.numero !== undefined) {
+                    infanumero = dataImportPropose.infoFacturation.numero    
+                }
+                if (dataImportPropose.infoFacturation.npa !== undefined) {
+                    infanpa = dataImportPropose.infoFacturation.npa    
+                }
+                if (dataImportPropose.infoFacturation.localite !== undefined) {
+                    infalocalite = dataImportPropose.infoFacturation.localite    
+                }
             } else {
                 //Information facturation selon demandeur
-               infoFacturation.value = 'selon données demandeur : demandeur'
+                if (dataImportPropose.demandeur.societe !== undefined) {
+                    infasociete = dataImportPropose.demandeur.societe    
+                }
+                if (dataImportPropose.demandeur.nom !== undefined) {
+                    infanom = dataImportPropose.demandeur.nom    
+                }
+                if (dataImportPropose.demandeur.prenom !== undefined) {
+                    infaprenom = dataImportPropose.demandeur.prenom    
+                }
+                if (dataImportPropose.demandeur.rue !== undefined) {
+                    infarue = dataImportPropose.demandeur.rue    
+                }
+                if (dataImportPropose.demandeur.numero !== undefined) {
+                    infanumero = dataImportPropose.demandeur.numero    
+                }
+                if (dataImportPropose.demandeur.npa !== undefined) {
+                    infanpa = dataImportPropose.demandeur.npa    
+                }
+                if (dataImportPropose.demandeur.localite !== undefined) {
+                    infalocalite = dataImportPropose.demandeur.localite    
+                }
+            }
+            if (infasociete !== '') {
+                infoFacturation.value = infasociete   
+            }
+            infanomprenom = (`${infanom} ${infaprenom}`).trim()
+            if (infanomprenom !== '') {
+                if (infoFacturation.value !== '') {infoFacturation.value += `\n`}
+                infoFacturation.value += infanomprenom
+            }
+            infaruenumero = (`${infarue} ${infanumero}`).trim()
+            if (infaruenumero !== '') {
+                if (infoFacturation.value !== '') {infoFacturation.value += `\n`}
+                infoFacturation.value += infaruenumero
+            }
+            infanpalocalite = (`${infanpa} ${infalocalite}`).trim()
+            if (infanpalocalite !== '') {
+                if (infoFacturation.value !== '') {infoFacturation.value += `\n`}
+                infoFacturation.value += infanpalocalite
             }
 
             //Client (acteur)
@@ -492,6 +553,7 @@ const importDemande = async () => {
         "numeroJaxformsDemande": numeroJaxformsDemande.value,
         "nomAffaire": nomAffaire.value.trim(),
         "descriptionAffaire": descriptionAffaire.value.trim(),
+        "infoFacturation": infoFacturation.value.trim(),
         "idEmployeGestionnaire": idEmpGestionnaire.value,
         "idEmployeTechnicien": idEmpTechnicien.value,
         "idActeurClient": idActeurClient.value,

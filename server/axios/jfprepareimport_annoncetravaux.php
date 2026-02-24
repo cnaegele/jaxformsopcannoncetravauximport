@@ -83,14 +83,14 @@ if ($bcontinue) {
         else { $sSql .= ", NULL";}
         $dbgo->queryRetJson2($sSql);
         $oGoRueAdresse = json_decode($dbgo->resString, false);
-        $oData->idRueGo = $oGoRueAdresse[0]->idrue;
-        $oData->idAdresseGo = $oGoRueAdresse[0]->idadresse;
-        $oData->rueAdresseNomAffaire = $oGoRueAdresse[0]->nomrueadr4affaire;
-        if ($oGoRueAdresse[0]->idbatiment > 0) {
+        $oData->idRueGo = $oGoRueAdresse[0]->idrue ?? 0;
+        $oData->idAdresseGo = $oGoRueAdresse[0]->idadresse ?? 0;
+        $oData->rueAdresseNomAffaire = $oGoRueAdresse[0]->nomrueadr4affaire ?? '';
+        if ($oGoRueAdresse[0]->idbatiment ?? 0 > 0) {
             $oData->idsBatimentGo = $oGoRueAdresse[0]->idbatiment;
             $nbrBatimentGo = 1;
         }
-        if ($oGoRueAdresse[0]->idparcelle > 0) {
+        if ($oGoRueAdresse[0]->idparcelle ?? 0 > 0) {
             $oData->idsParcelleGo = $oGoRueAdresse[0]->idparcelle;
             $nbrParcelleGo++;
         }
@@ -234,8 +234,16 @@ if ($bcontinue) {
     $oData->demandeur->nomacteurGo = '';
     $emailDemandeur = '';
     $nomDemandeur = '';
+    $nomDemSociete = '';
+    $nomDemNom = '';
     $idTypeComplement = 0;
     if (isset($oData->demandeur)) {
+        if (isset($oData->demandeur->societe)) {
+            $nomDemSociete = $oData->demandeur->societe;
+        }
+        if (isset($oData->demandeur->nom)) {
+            $nomDemNom = $oData->demandeur->nom;;
+        }
         if (isset($oData->demandeur->email)) {
             $emailDemandeur = $oData->demandeur->email;
             $emailDemandeur = trim($emailDemandeur);
@@ -248,13 +256,16 @@ if ($bcontinue) {
             $nomDemandeur = $oData->demandeur->nom;
             if (isset($oData->demandeur->prenom)) {
                 $nomDemandeur .= ' ' . $oData->demandeur->prenom;
-                $nomDemandeur = trim(str_replace('  ', ' ', $nomDemandeur));
-                $nomDemandeur = str_replace("'", "''", $nomDemandeur);
             }
         }
+        $emailDemandeur = utf8go_decode(str_replace("'", "''", trim($emailDemandeur)));
+        $nomDemSociete = utf8go_decode(str_replace("'", "''", trim($nomDemSociete)));
+        $nomDemNom = utf8go_decode(str_replace("'", "''", trim($nomDemNom)));
+        $nomDemandeur = trim(str_replace('  ', ' ', $nomDemandeur));
+        $nomDemandeur = utf8go_decode(str_replace("'", "''", $nomDemandeur));
     }
     if ($emailDemandeur !== '' || $nomDemandeur !== '') {
-        $sSql = "cn_acteur_cherche $idTypeComplement, '$emailDemandeur', '$nomDemandeur'";
+        $sSql = "cn_acteur_cherche $idTypeComplement, '$emailDemandeur', '$nomDemandeur', '$nomDemSociete', '$nomDemNom'";
         $dbgo->queryRetJson2($sSql);
         $oGoActeur = json_decode($dbgo->resString, false);
         if (count($oGoActeur) > 0) {
@@ -266,7 +277,7 @@ if ($bcontinue) {
 
     //Fichiers controle
     $oJaxForms = new CNJaxForms(
-        jaxServer: 'api-vali.lausanne.ch'
+        jaxServer: 'api.lausanne.ch'
         ,idForms: 'URB_dispense_permis_construire'
     );
     for ($i = 0; $i < count($oData->fichiers); $i++) {

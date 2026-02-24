@@ -4,7 +4,7 @@ header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
 
 $oJaxForms = new CNJaxForms(
-     jaxServer: 'api-vali.lausanne.ch'
+     jaxServer: 'api.lausanne.ch'
     ,idForms: 'URB_dispense_permis_construire'
 );
 $bParamsOk = true;
