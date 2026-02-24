@@ -88,15 +88,50 @@ class CNJaxForms {
         return json_decode($response, true);
     }
 
-    public function searchForms($accessToken = '', $pageSize = 10, $offset = 0, $demandestatus = 0) {
+    public function searchForms($accessToken = '', $pageSize = 100, $offset = 0, $demandestatus = 0) {
         if (!$accessToken) {
             $jfToken = $this->getToken();
             $accessToken = $jfToken['access_token'];
         }
-        $url = $this->urlSearch;
-        if ($demandestatus > 0) {
-            $url .= '/' . strval($demandestatus);
+
+        // Si demandestatus = 0, on effectue plusieurs recherches et on fusionne
+        // On ne va pas chercher 100: archivé et 256: supprimé
+        if ($demandestatus === 0) {
+            $statuses = [2, 4, 10, 20, 40];
+            $mergedRows = [];
+            $totalSize = 0;
+
+            foreach ($statuses as $status) {
+                $result = $this->searchForms($accessToken, $pageSize, $offset, $status);
+                if ($this->typeReturnSearch !== "object") {
+                    $result = json_decode($result, true);
+                }
+                if (!empty($result['row'])) {
+                    $mergedRows = array_merge($mergedRows, $result['row']);
+                    $totalSize += $result['info']['totalSize'] ?? 0;
+                }
+            }
+
+            $mergedResult = [
+                'info' => [
+                    'size'      => count($mergedRows),
+                    'offset'    => $offset,
+                    'pageSize'  => $pageSize,
+                    'totalSize' => $totalSize,
+                    'hasNext'   => false
+                ],
+                'row' => $mergedRows
+            ];
+
+            if ($this->typeReturnSearch === "object") {
+                return $mergedResult;
+            } else {
+                return json_encode($mergedResult);
+            }
         }
+
+        // Comportement normal pour un statut spécifique
+        $url = $this->urlSearch . '/' . strval($demandestatus);
 
         $headers = [
             "Content-Type: application/json",
@@ -106,8 +141,8 @@ class CNJaxForms {
 
         $data = [
             "countTotal" => true,
-            "pageSize" => $pageSize,
-            "offset" => $offset,
+            "pageSize"   => $pageSize,
+            "offset"     => $offset,
             "includeXML" => false
         ];
 
@@ -132,7 +167,7 @@ class CNJaxForms {
             throw new Exception("Erreur HTTP: " . $httpCode);
         }
 
-        if ($this->typeReturnSearch == "object") {
+        if ($this->typeReturnSearch === "object") {
             return json_decode($response, true);
         } else {
             return $response;
