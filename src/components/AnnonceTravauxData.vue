@@ -262,16 +262,48 @@ const loadData = async () => {
         dataForms.descriptionTravaux = jfTravauxDescription.toString()
       }
 
-      //Coordonnées demandeur
-      let jfDemandeurNom: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_proprietaire_nom')
-      let jfDemandeurPrenom: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_proprietaire_prenom')
-      let jfDemandeurSociete: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnées_proprietaite_societe') //Oui, il y a un é. Merci SOI
-      let jfDemandeurRue: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_rue')
-      let jfDemandeurNumero: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_numero')
-      let jfDemandeurNpa: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_npa')
-      let jfDemandeurLocalite: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_localite')
-      let jfDemandeurTelephone: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_telephone_telephone_mobile')
-      let jfDemandeurEmail: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_email_proprietaire')
+      //Coordonnées demandeur selon requerant qui est optionnel ou proprietaire qui est obligatoire
+      let jfDemandeurNom: string | number | undefined
+      let jfDemandeurPrenom: string | number | undefined
+      let jfDemandeurSociete: string | number | undefined
+      let jfDemandeurRue: string | number | undefined
+      let jfDemandeurNumero: string | number | undefined
+      let jfDemandeurNpa: string | number | undefined
+      let jfDemandeurLocalite: string | number | undefined
+      let jfDemandeurTelephone: string | number | undefined
+      let jfDemandeurEmail: string | number | undefined
+
+      let bRequerentSaisi: boolean = false
+      let jfDemandeurCoordonneeRequerent: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_adresse_requerent_choix')
+      if (jfDemandeurCoordonneeRequerent !== undefined) {
+        jfDemandeurCoordonneeRequerent = jfDemandeurCoordonneeRequerent.toString().trim()
+        if (jfDemandeurCoordonneeRequerent === 'oui') {
+          bRequerentSaisi = true
+        }
+      }
+
+      if (bRequerentSaisi) {
+        jfDemandeurNom = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_requerant', 'coordonnees_requerant_nom')
+        jfDemandeurPrenom = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_requerant', 'coordonnees_requerant_prenom')
+        jfDemandeurSociete = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_requerant', 'coordonnees_requerant_societe')
+        jfDemandeurRue = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_requerant', 'coordonnees_requerant_rue')
+        jfDemandeurNumero = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_requerant', 'coordonnees_requerant_numero')
+        jfDemandeurNpa = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_requerant', 'coordonnees_requerant_npa')
+        jfDemandeurLocalite = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_requerant', 'coordonnees_requerant_localite')
+        jfDemandeurTelephone = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_requerant', 'coordonnees_requerant_telephone_mobile')
+        jfDemandeurEmail = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_requerant', 'coordonnees_requerant_email')
+      } else {
+        jfDemandeurNom = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_proprietaire_nom')
+        jfDemandeurPrenom = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_proprietaire_prenom')
+        jfDemandeurSociete = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnées_proprietaite_societe') //Oui, il y a un é. Merci SOI
+        jfDemandeurRue = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_rue')
+        jfDemandeurNumero = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_numero')
+        jfDemandeurNpa = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_npa')
+        jfDemandeurLocalite = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_localite')
+        jfDemandeurTelephone = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_telephone_telephone_mobile')
+        jfDemandeurEmail = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_email_proprietaire')
+      }
+
       if (jfDemandeurSociete !== undefined) {
         jfDemandeurSociete = jfDemandeurSociete.toString().trim()
         dataForms.demandeur.societe = jfDemandeurSociete
