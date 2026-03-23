@@ -447,7 +447,9 @@ const loadDataImport = async () => {
                 //console.log("docImportParams", docImportParams)
                 fichiers.value = dataImportPropose.fichiers
                 //Prêt pour autoriser le choix de la famille uniquement après consultation du fichier. mettre false au lieu de true
-                fichiers.value = dataImportPropose.fichiers.map(f => ({ ...f, consulte: true }))
+                //23.03.2026 passé à false, donc obligation de consulter le fichier avant de pourvoir demander son importation dans goéland enchoissant une famille
+                //Ok pour OPC (De Castro Fabio)
+                fichiers.value = dataImportPropose.fichiers.map(f => ({ ...f, consulte: false }))
                 nombreFichiers.value = fichiers.value.length
             }
 
