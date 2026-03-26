@@ -512,7 +512,7 @@ const loadData = async () => {
       }
 
       //Fichier selon cas spéciaux
-      const jfFichierCasPPE: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'upload_cas_un')
+      const jfFichierCasPPE: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'accord_administration_ppe_copropriete_document')
       if (jfFichierCasPPE !== undefined) {
         const idfilesp: string = jfFichierCasPPE.toString()
         const nomfilesp: string = 'Préavis accord PPE'
@@ -526,7 +526,7 @@ const loadData = async () => {
         }
       }
 
-      const jfFichierCas1: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'accord_administration_ppe_copropriete_document')
+      const jfFichierCas1: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'upload_cas_un')
       if (jfFichierCas1 !== undefined) {
         const idfilesp: string = jfFichierCas1.toString()
         const nomfilesp: string = 'Préavis recensement architectural'

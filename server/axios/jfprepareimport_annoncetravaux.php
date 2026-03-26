@@ -284,24 +284,32 @@ if ($bcontinue) {
         if ($oData->fichiers[$i]->idjf !== '') {
             try {
                 $jfFileAttachment = $oJaxForms->getFileAttachment(idFile: $oData->fichiers[$i]->idjf);
-                $oData->fichiers[$i]->size = $jfFileAttachment['size'];
-                $oData->fichiers[$i]->mimetype = $jfFileAttachment['mime_type'];
-                $sha256 = hash('sha256', $jfFileAttachment['content']);
-                $oData->fichiers[$i]->sha256 = $sha256;
-                if ($i > 0) {
-                    //Recherche de doublon, même fichier passé plusieurs fois
-                    $jmax = $i;
-                    for ($j = 0; $j < $jmax; $j++) {
-                        if ($oData->fichiers[$j]->sha256 == $sha256) {
-                            $noFichier = $j+1;
-                            $oData->fichiers[$i]->infoDoublon = "doublon avec fichier $noFichier";
-                            break;
+                if ($jfFileAttachment['size'] != 0) {
+                    $oData->fichiers[$i]->size = $jfFileAttachment['size'];
+                    $oData->fichiers[$i]->mimetype = $jfFileAttachment['mime_type'];
+                    $sha256 = hash('sha256', $jfFileAttachment['content']);
+                    $oData->fichiers[$i]->sha256 = $sha256;
+                    if ($i > 0) {
+                        //Recherche de doublon, même fichier passé plusieurs fois
+                        $jmax = $i;
+                        for ($j = 0; $j < $jmax; $j++) {
+                            if ($oData->fichiers[$j]->sha256 == $sha256) {
+                                $noFichier = $j + 1;
+                                $oData->fichiers[$i]->infoDoublon = "doublon avec fichier $noFichier";
+                                break;
+                            }
                         }
                     }
+                    $sSql = "cn_document_id_parsha256 '$sha256'";
+                    $dbgo->queryRetInt($sSql);
+                    $oData->fichiers[$i]->idDocGo = $dbgo->resInt;
+                    //Décommenter ces 3 lignes si on ne veut que du pdf
+                    //if (str_contains($oData->fichiers[$i]->mimetype, 'pdf') === false) {
+                    //    $oData->fichiers[$i]->infoDoublon = "fichier non pdf !";
+                    //}
+                } else {
+                    $oData->fichiers[$i]->infoDoublon = "fichier introuvable !";
                 }
-                $sSql = "cn_document_id_parsha256 '$sha256'";
-                $dbgo->queryRetInt($sSql);
-                $oData->fichiers[$i]->idDocGo = $dbgo->resInt;
             } catch (Exception $e) {
             }
         }

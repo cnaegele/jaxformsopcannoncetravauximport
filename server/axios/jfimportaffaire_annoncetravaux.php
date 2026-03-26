@@ -110,43 +110,45 @@ if ($idCaller > 0) {
                             $clientFilename = $oFichier->filename;
                             $jfFileAttachment = $oJaxForms->getFileAttachment(idFile: $idJaxformsFile);
                             $size = $jfFileAttachment['size'];
-                            $mimetype = $jfFileAttachment['mime_type'];
-                            $fileContent = $jfFileAttachment['content'];
-                            //$sha256 = hash('sha256', $jfFileAttachment['content']);
-                            $tmpfilename = $upload_path . $idJaxformsFile;
-                            if (file_put_contents($tmpfilename, $fileContent)) {
-                                $mimetype = mime_content_type($tmpfilename);
-                                //je vais voir si j'accepte ce mimetype et ensuite, j'ajoute l'extension correspondante au nom de fichier.
-                                $sSql = "cn_typedocument_idtypeextension_parmimetype '$mimetype'";
-                                $dbgo->queryRetJson2($sSql);
-                                $oDocType = json_decode($dbgo->resString, false);
-                                if (count($oDocType) == 1) {
-                                    $idDocType = $oDocType[0]->idtypedocument;
-                                    $extension = $oDocType[0]->extension;
-                                    rename($tmpfilename, $tmpfilename . '.' . $extension);
-                                    $tmpfilename = $tmpfilename . '.' . $extension;
-                                    $titreDoc = "$clientFilename - $nomAffaire";
-                                    $dateDuJour = date('Y-m-d');
-                                    //Post du document
-                                    $sXmlDataDocument = "<Data>";
-                                    $sXmlDataDocument .= "<Titre>" . rawurlencode(utf8go_decode($titreDoc)) . "</Titre>";
-                                    $sXmlDataDocument .= "<IdFamille>$idFamille</IdFamille>"; //Photo
-                                    $sXmlDataDocument .= "<IdType>$idDocType</IdType>";
-                                    $sXmlDataDocument .= "<DateOf>$dateDuJour</DateOf>";
-                                    $sXmlDataDocument .= "<DocExterne>1</DocExterne>";
-                                    if ($idActeurClient > 0) {
-                                        $sXmlDataDocument .= "<IdAuteurExt>$idActeurClient</IdAuteurExt>";
+                            if ($size != 0) {
+                                $mimetype = $jfFileAttachment['mime_type'];
+                                $fileContent = $jfFileAttachment['content'];
+                                //$sha256 = hash('sha256', $jfFileAttachment['content']);
+                                $tmpfilename = $upload_path . $idJaxformsFile;
+                                if (file_put_contents($tmpfilename, $fileContent)) {
+                                    $mimetype = mime_content_type($tmpfilename);
+                                    //je vais voir si j'accepte ce mimetype et ensuite, j'ajoute l'extension correspondante au nom de fichier.
+                                    $sSql = "cn_typedocument_idtypeextension_parmimetype '$mimetype%'";
+                                    $dbgo->queryRetJson2($sSql);
+                                    $oDocType = json_decode($dbgo->resString, false);
+                                    if (count($oDocType) == 1) {
+                                        $idDocType = $oDocType[0]->idtypedocument;
+                                        $extension = $oDocType[0]->extension;
+                                        rename($tmpfilename, $tmpfilename . '.' . $extension);
+                                        $tmpfilename = $tmpfilename . '.' . $extension;
+                                        $titreDoc = "$clientFilename - $nomAffaire";
+                                        $dateDuJour = date('Y-m-d');
+                                        //Post du document
+                                        $sXmlDataDocument = "<Data>";
+                                        $sXmlDataDocument .= "<Titre>" . rawurlencode(utf8go_decode($titreDoc)) . "</Titre>";
+                                        $sXmlDataDocument .= "<IdFamille>$idFamille</IdFamille>"; //Photo
+                                        $sXmlDataDocument .= "<IdType>$idDocType</IdType>";
+                                        $sXmlDataDocument .= "<DateOf>$dateDuJour</DateOf>";
+                                        $sXmlDataDocument .= "<DocExterne>1</DocExterne>";
+                                        if ($idActeurClient > 0) {
+                                            $sXmlDataDocument .= "<IdAuteurExt>$idActeurClient</IdAuteurExt>";
+                                        }
+                                        $sXmlDataDocument .= "<IdNivConf>1</IdNivConf>";
+                                        $sXmlDataDocument .= "<IdEmploye>$idCaller</IdEmploye>";
+                                        $sXmlDataDocument .= "<IdAffaireL>$idAffOPCAnnonceTravaux</IdAffaireL>";
+                                        $sXmlDataDocument .= "</Data>";
+                                        $oDocPost = new CNDocumentPost('', $sizeMaxDoc);
+                                        $oDocPost->post($tmpfilename, $sXmlDataDocument);
+                                        if ($oDocPost->_getResErreur() != '') {
+                                            $messageErreur .= $oDocPost->_getResErreur() . "\n";
+                                        }
+                                        unset($oDocPost);
                                     }
-                                    $sXmlDataDocument .= "<IdNivConf>1</IdNivConf>";
-                                    $sXmlDataDocument .= "<IdEmploye>$idCaller</IdEmploye>";
-                                    $sXmlDataDocument .= "<IdAffaireL>$idAffOPCAnnonceTravaux</IdAffaireL>";
-                                    $sXmlDataDocument .= "</Data>";
-                                    $oDocPost = new CNDocumentPost('', $sizeMaxDoc);
-                                    $oDocPost->post($tmpfilename, $sXmlDataDocument);
-                                    if ($oDocPost->_getResErreur() != '') {
-                                        $messageErreur .= $oDocPost->_getResErreur() . "\n";
-                                    }
-                                    unset($oDocPost);
                                 }
                             }
                         }
@@ -188,7 +190,7 @@ if ($idCaller > 0) {
                         $sXmlDataSpec .= '<BLogement></BLogement>';
                         $sXmlDataSpec .= '<BMonumentH></BMonumentH>';
                         $sXmlDataSpec .= '<NumeroCamac></NumeroCamac>';
-                        $sXmlDataSpec .= '<InfoFacturation>' . $infoFacturation . '</InfoFacturation>';
+                        $sXmlDataSpec .= '<InfoFacturation>' . rawurlencode(utf8go_decode($infoFacturation)) . '</InfoFacturation>';
                         $sXmlDataSpec .= '</Specialisation></Data>';
                         $domD = new domdocument();
                         $domD->loadXML($sXmlDataSpec);

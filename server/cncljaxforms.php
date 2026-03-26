@@ -245,7 +245,12 @@ class CNJaxForms {
         curl_close($ch);
 
         if ($httpCode !== 200) {
-            throw new Exception("Erreur HTTP: " . $httpCode);
+            return [
+                'content' => '',
+                'mime_type' => '',
+                'size' => 0,
+                'http_code' => $httpCode
+            ];
         }
 
         return [

@@ -26,8 +26,12 @@ if ($bParamsOk) {
     }
 }
 if ($success) {
-    header("Content-type: " . $jfFileAttachment['mime_type']);
-    echo $jfFileAttachment['content'];
+    if ($jfFileAttachment['size'] === 0) {
+        echo "http code : " . $jfFileAttachment['http_code'] . ". Le fichier $idFileAttachment n'existe pas";
+    } else {
+        header("Content-type: " . $jfFileAttachment['mime_type']);
+        echo $jfFileAttachment['content'];
+    }
 } else {
     header('Content-Type: application/json');
     $result = [
