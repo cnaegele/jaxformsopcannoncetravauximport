@@ -596,6 +596,34 @@ const loadData = async () => {
         }
       }
 
+      const jfFichierCasPChaleurFor: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_installation_pompes_chaleur')
+      if (jfFichierCasPChaleurFor !== undefined) {
+        const idfilesp: string = jfFichierCasPChaleurFor.toString()
+        const nomfilesp: string = 'Formulaire annonce pompe à chaleur'
+        if (idfilesp.trim() !== '') {
+          nombreFichiers.value++
+          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
+          listeFichiers.value.push(fichier)
+          idsfichier.value.push(idfilesp)
+          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
+          dataForms.fichiers.push(tmpFichier)
+        }
+      }
+
+      const jfFichierCasPChaleurDoc: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_installation_pompes_chaleur')
+      if (jfFichierCasPChaleurDoc !== undefined) {
+        const idfilesp: string = jfFichierCasPChaleurDoc.toString()
+        const nomfilesp: string = 'Documentation technique pompe à chaleur'
+        if (idfilesp.trim() !== '') {
+          nombreFichiers.value++
+          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
+          listeFichiers.value.push(fichier)
+          idsfichier.value.push(idfilesp)
+          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
+          dataForms.fichiers.push(tmpFichier)
+        }
+      }
+
       //Fichiers du GRP_3
       const gFichiers: Group | undefined = jfFormsData.data.group.find(g => g.id === "GRP_3")
       if (gFichiers !== undefined) {
