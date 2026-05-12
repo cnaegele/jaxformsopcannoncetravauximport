@@ -72,6 +72,7 @@ export interface AffaireDataImport {
     idEmployeGestionnaire: number
     idEmployeTechnicien: number
     idActeurClient: number
+    mailActeurClient: string
     idBatimentLie: number[]
     idParcelleLie: number[]
     fichiers: FichierImport[]

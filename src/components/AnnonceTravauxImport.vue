@@ -217,6 +217,7 @@ const idEmpGestionnaire = ref<number>(0)
 const technicienListeChoix = ref<EmployeParticipe[]>([])
 const idEmpTechnicien = ref<number>(0)
 const idActeurClient = ref<number>(0)
+const mailActeurClient = ref<string>('')
 const nomActeurClient = ref<string>(' - ')
 const choixActeur = ref<boolean>(false)
 const infoActeur = ref<boolean>(false)
@@ -428,6 +429,9 @@ const loadDataImport = async () => {
             const email: string = dataForms.demandeur.email ?? ''
             const telephone: string = dataForms.demandeur.telephone ?? ''
 
+            //Pour commentaire dans le lien acteur affaire
+            mailActeurClient.value = email
+
             //mailtobody pour demande de création d'acteur
             mailtobody.value = `Societé : ${societe}\nNom : ${nom}\nPrénom : ${prenom}\nRue numéro : ${rue} ${numero}\nNpa Localité : ${npa} ${localite}\nemail : ${email}\ntéléphone : ${telephone}`
 
@@ -559,6 +563,7 @@ const importDemande = async () => {
         "idEmployeGestionnaire": idEmpGestionnaire.value,
         "idEmployeTechnicien": idEmpTechnicien.value,
         "idActeurClient": idActeurClient.value,
+        "mailActeurClient": mailActeurClient.value,
         "idBatimentLie": aIdsBatimentGo.value,
         "idParcelleLie": aIdsParcelleGo.value,
         "fichiers": fichierImport,
