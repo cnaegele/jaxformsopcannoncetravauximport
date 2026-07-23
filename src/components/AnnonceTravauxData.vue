@@ -610,7 +610,7 @@ const loadData = async () => {
         }
       }
 
-      const jfFichierCasPChaleurDoc: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_installation_pompes_chaleur')
+      const jfFichierCasPChaleurDoc: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_installation_pompes_chaleur_deux')
       if (jfFichierCasPChaleurDoc !== undefined) {
         const idfilesp: string = jfFichierCasPChaleurDoc.toString()
         const nomfilesp: string = 'Documentation technique pompe à chaleur'
