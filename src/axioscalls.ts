@@ -38,7 +38,7 @@ export interface ApiResponseJFFL {
 
 //Interfaces pour les données d'un formulaire
 export interface Group {
-  var: Variable | Variable[];
+  var?: Variable | Variable[];
   id: string;
 }
 
@@ -130,7 +130,7 @@ export function getDataContentByGroupAndVarId(
   // Trouver le groupe correspondant
   const group = formData.data.group.find(g => g.id === groupId);
   
-  if (!group) {
+  if (!group || group.var == null) {
     return undefined;
   }
   
