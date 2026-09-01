@@ -624,6 +624,34 @@ const loadData = async () => {
         }
       }
 
+      const jfFichierCasDioxinePreavisFav: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_assainissement_terrain_pollue_dioxine_preavis_favorable_dge')
+      if (jfFichierCasDioxinePreavisFav !== undefined) {
+        const idfilesp: string = jfFichierCasDioxinePreavisFav.toString()
+        const nomfilesp: string = 'Préavis DGE dioxine'
+        if (idfilesp.trim() !== '') {
+          nombreFichiers.value++
+          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
+          listeFichiers.value.push(fichier)
+          idsfichier.value.push(idfilesp)
+          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
+          dataForms.fichiers.push(tmpFichier)
+        }
+      }
+
+      const jfFichierCasDioxinePlanEliminDechet: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_assainissement_terrain_pollue_dioxine_plan_elimination_dechets')
+      if (jfFichierCasDioxinePlanEliminDechet !== undefined) {
+        const idfilesp: string = jfFichierCasDioxinePlanEliminDechet.toString()
+        const nomfilesp: string = 'Plan d\'élimination des déchets'
+        if (idfilesp.trim() !== '') {
+          nombreFichiers.value++
+          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
+          listeFichiers.value.push(fichier)
+          idsfichier.value.push(idfilesp)
+          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
+          dataForms.fichiers.push(tmpFichier)
+        }
+      }
+
       //Fichiers du GRP_3
       const gFichiers: Group | undefined = jfFormsData.data.group.find(g => g.id === "GRP_3")
       if (gFichiers !== undefined) {
