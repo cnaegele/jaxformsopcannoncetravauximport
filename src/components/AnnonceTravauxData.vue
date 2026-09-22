@@ -256,7 +256,7 @@ const loadData = async () => {
       }
 
       //Description travaux
-      const jfTravauxDescription: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'information_projet', 'travaux_description')
+      const jfTravauxDescription: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'travaux_description')
       if (jfTravauxDescription !== undefined) {
         descriptionTravaux.value = jfTravauxDescription.toString()
         dataForms.descriptionTravaux = jfTravauxDescription.toString()
@@ -274,7 +274,7 @@ const loadData = async () => {
       let jfDemandeurEmail: string | number | undefined
 
       let bRequerentSaisi: boolean = false
-      let jfDemandeurCoordonneeRequerent: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_adresse_requerent_choix')
+      let jfDemandeurCoordonneeRequerent: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_adresse_requerent_choix')
       if (jfDemandeurCoordonneeRequerent !== undefined) {
         jfDemandeurCoordonneeRequerent = jfDemandeurCoordonneeRequerent.toString().trim()
         if (jfDemandeurCoordonneeRequerent === 'oui') {
@@ -293,15 +293,15 @@ const loadData = async () => {
         jfDemandeurTelephone = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_requerant', 'coordonnees_requerant_telephone_mobile')
         jfDemandeurEmail = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_requerant', 'coordonnees_requerant_email')
       } else {
-        jfDemandeurNom = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_proprietaire_nom')
-        jfDemandeurPrenom = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_proprietaire_prenom')
-        jfDemandeurSociete = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnées_proprietaite_societe') //Oui, il y a un é. Merci SOI
-        jfDemandeurRue = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_rue')
-        jfDemandeurNumero = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_numero')
-        jfDemandeurNpa = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_npa')
-        jfDemandeurLocalite = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_localite')
-        jfDemandeurTelephone = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_telephone_telephone_mobile')
-        jfDemandeurEmail = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_email_proprietaire')
+        jfDemandeurNom = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_proprietaire_nom')
+        jfDemandeurPrenom = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_proprietaire_prenom')
+        jfDemandeurSociete = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnées_proprietaite_societe') //Oui, il y a un é. Merci SOI
+        jfDemandeurRue = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_rue')
+        jfDemandeurNumero = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_numero')
+        jfDemandeurNpa = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_npa')
+        jfDemandeurLocalite = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_localite')
+        jfDemandeurTelephone = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_telephone_telephone_mobile')
+        jfDemandeurEmail = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_email_proprietaire')
       }
 
       if (jfDemandeurSociete !== undefined) {
@@ -412,7 +412,7 @@ const loadData = async () => {
       }
 
       //Coordonnées facturation
-      let jfDemandeurCoordonneeFacturation: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_adresse_facturation')
+      let jfDemandeurCoordonneeFacturation: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_adresse_facturation')
       if (jfDemandeurCoordonneeFacturation !== undefined) {
         jfDemandeurCoordonneeFacturation = jfDemandeurCoordonneeFacturation.toString().trim()
         if (jfDemandeurCoordonneeFacturation === 'oui') {

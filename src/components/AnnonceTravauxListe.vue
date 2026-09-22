@@ -302,8 +302,8 @@ const loadData = async () => {
               if (jfFormsData !== undefined) {
                 localisationRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_rue') ?? '?'
                 localisationNumRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_numeroDeRue') ?? ''
-                descriptionTravaux = getDataContentByGroupAndVarId(jfFormsData, 'information_projet', 'travaux_description') ?? '?'
-                emailDemandeur = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_demandeur', 'coordonnees_email_proprietaire') ?? '?'
+                descriptionTravaux = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'travaux_description') ?? '?'
+                emailDemandeur = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_suivi_demande', 'email') ?? '?'
               }
               //console.log(responseD)
               const goFormsListe: GoFormsListe = {
