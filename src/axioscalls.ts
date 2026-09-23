@@ -5,30 +5,30 @@ import type { DataForms } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 
 //Interfaces pour la liste des formulaires
 interface Field {
-  id: string;
-  value: string;
+    id: string;
+    value: string;
 }
 
 export interface Row {
-  field: Field[];
-  xml: string | null;
-  json: string | null;
-  hasPDF: boolean | null;
-  hasAttachment: boolean | null;
-  seqID: number | null;
+    field: Field[];
+    xml: string | null;
+    json: string | null;
+    hasPDF: boolean | null;
+    hasAttachment: boolean | null;
+    seqID: number | null;
 }
 
 interface Info {
-  pageSize: number;
-  hasNext: boolean;
-  totalSize: number;
-  size: number;
-  offset: number;
+    pageSize: number;
+    hasNext: boolean;
+    totalSize: number;
+    size: number;
+    offset: number;
 }
 
 export interface JFFormsListe {
-  info: Info;
-  row: Row[];
+    info: Info;
+    row: Row[];
 }
 export interface ApiResponseJFFL {
     success?: boolean;
@@ -37,32 +37,43 @@ export interface ApiResponseJFFL {
 }
 
 //Interfaces pour les données d'un formulaire
-export interface Group {
-  var?: Variable | Variable[];
-  id: string;
+export interface Variable {
+    id: string;
+    content: string | number;
 }
 
-interface Variable {
-  id: string;
-  content?: string | number;
+export interface ListEntryItem {
+    var: Variable;
+}
+
+export interface ListEntry {
+    entry: ListEntryItem | ListEntryItem[] | "";
+    size: number;
+    id: string;
+}
+
+export interface Group {
+    var?: Variable | Variable[];
+    list?: ListEntry | ListEntry[];
+    id: string;
 }
 
 interface PersonalInfo {
-  value: string;
-  key: string;
+    value: string;
+    key: string;
 }
 
 export interface JFFormsData {
-  data: {
-    group: Group[];
-  };
-  fingerprint: {
-    formID: string;
-    CREATED: string;
-    originURL: string;
-    GUID: string;
-  };
-  pi: PersonalInfo[];
+    data: {
+        group: Group[];
+    };
+    fingerprint: {
+        formID: string;
+        CREATED: string;
+        originURL: string;
+        GUID: string;
+    };
+    pi: PersonalInfo[];
 }
 export interface ApiResponseJFFD {
     success?: boolean;
@@ -88,11 +99,11 @@ export interface ApiResponseIFD {
 
 //Interface pour les liste d'employe par unité
 export interface EmployeParUO {
-  idemploye: number
-  titrepol: string
-  nom: string
-  prenom: string
-  DescTreeDenorm: string  
+    idemploye: number
+    titrepol: string
+    nom: string
+    prenom: string
+    DescTreeDenorm: string
 }
 export interface ApiResponseEU {
     success?: boolean;
@@ -102,8 +113,8 @@ export interface ApiResponseEU {
 
 //interface pour la liste des famille de document et la taille maximun autorisée
 export interface DocumentImportParams {
-  sizemax: number
-  familles: [{id: number, label: string}]  
+    sizemax: number
+    familles: [{ id: number, label: string }]
 }
 export interface ApiResponseDIP {
     success?: boolean;
@@ -119,28 +130,58 @@ export interface ApiResponse<T> {
 }
 
 export function getListeFieldValue(row: Row, fieldId: string): string | undefined {
-  return row.field.find(f => f.id === fieldId)?.value;
+    return row.field.find(f => f.id === fieldId)?.value;
 }
 
 export function getDataContentByGroupAndVarId(
-  formData: JFFormsData, 
-  groupId: string, 
-  varId: string
+    formData: JFFormsData,
+    groupId: string,
+    varId: string
 ): string | number | undefined {
-  // Trouver le groupe correspondant
-  const group = formData.data.group.find(g => g.id === groupId);
-  
-  if (!group || group.var == null) {
-    return undefined;
-  }
-  
-  // Normaliser var en tableau
-  const vars = Array.isArray(group.var) ? group.var : [group.var];
-  
-  // Chercher la variable dans ce groupe
-  const variable = vars.find(v => v.id === varId);
-  
-  return variable?.content;
+    // Trouver le groupe correspondant
+    const group = formData.data.group.find(g => g.id === groupId);
+
+    if (!group || group.var == null) {
+        return undefined;
+    }
+
+    // Normaliser var en tableau
+    const vars = Array.isArray(group.var) ? group.var : [group.var];
+
+    // Chercher la variable dans ce groupe
+    const variable = vars.find(v => v.id === varId);
+
+    return variable?.content;
+}
+
+export function getIdFileByGroupAndVarId(
+    formData: JFFormsData,
+    groupId: string,
+    varId: string
+): string[] {
+    // Trouver le groupe correspondant
+    const group = formData.data.group.find(g => g.id === groupId);
+    if (!group || group.list == null) {
+        return [];
+    }
+
+    // Normaliser list en tableau
+    const listEntries = Array.isArray(group.list) ? group.list : [group.list];
+
+    // Chercher l'entrée correspondant à l'id demandé
+    const listEntry = listEntries.find(l => l.id === varId);
+    if (!listEntry || !listEntry.entry) {
+        // entry absent ou vide ("")
+        return [];
+    }
+
+    // Normaliser entry en tableau (objet unique, ou tableau si size > 1)
+    const entries = Array.isArray(listEntry.entry) ? listEntry.entry : [listEntry.entry];
+
+    return entries
+        .map(e => e?.var?.content)
+        .filter((content): content is string | number => content != null)
+        .map(content => String(content));
 }
 
 export async function getJFFormsListe(server: string = '', page: string, jsonParams: string = '{}'): Promise<ApiResponseJFFL> {
@@ -169,7 +210,7 @@ export async function getJFFormsData(server: string = '', page: string, jsonPara
     }
 }
 
-export async function getIdAffaireGoeland(server: string = '', page: string, idJaxForms: string) : Promise<ApiResponseNumber> {
+export async function getIdAffaireGoeland(server: string = '', page: string, idJaxForms: string): Promise<ApiResponseNumber> {
     const urlig: string = `${server}${page}`
     const params = new URLSearchParams([['idjaxforms', idJaxForms]])
     try {

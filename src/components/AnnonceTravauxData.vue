@@ -156,7 +156,7 @@
 <script setup lang="ts">
 import type { JFFormsData, ApiResponseJFFD, Group, ApiResponseJFFL } from '@/axioscalls.ts'
 import type { DataForms, Fichier } from '@/jaxformsOpcAnnonceTravauxImport.ts'
-import { getJFFormsData, getDataContentByGroupAndVarId, getJFFormsListe } from '@/axioscalls.ts'
+import { getJFFormsData, getDataContentByGroupAndVarId, getIdFileByGroupAndVarId, getJFFormsListe } from '@/axioscalls.ts'
 import { getUUIDAndStatus, getIDAndStatus } from '@/jaxformsOpcAnnonceTravauxImport.ts'
 import { ref, onMounted } from 'vue'
 
@@ -511,171 +511,88 @@ const loadData = async () => {
         }
       }
 
-      //Fichier selon cas spéciaux
-      const jfFichierCasPPE: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'accord_administration_ppe_copropriete_document')
-      if (jfFichierCasPPE !== undefined) {
-        const idfilesp: string = jfFichierCasPPE.toString()
-        const nomfilesp: string = 'Accord de l\'administration PPE/copropriété'
-        if (idfilesp.trim() !== '') {
-          nombreFichiers.value++
-          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
-          listeFichiers.value.push(fichier)
-          idsfichier.value.push(idfilesp)
-          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
-          dataForms.fichiers.push(tmpFichier)
-        }
-      }
-
-      const jfFichierCas1: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'upload_cas_un')
-      if (jfFichierCas1 !== undefined) {
-        const idfilesp: string = jfFichierCas1.toString()
-        const nomfilesp: string = 'Préavis DGIP-Monuments et sites'
-        if (idfilesp.trim() !== '') {
-          nombreFichiers.value++
-          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
-          listeFichiers.value.push(fichier)
-          idsfichier.value.push(idfilesp)
-          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
-          dataForms.fichiers.push(tmpFichier)
-        }
-      }
-
-      const jfFichierCas2: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'upload_cas_deux')
-      if (jfFichierCas2 !== undefined) {
-        const idfilesp: string = jfFichierCas2.toString()
-        const nomfilesp: string = 'Préavis délégation à la protection du patrimoine'
-        if (idfilesp.trim() !== '') {
-          nombreFichiers.value++
-          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
-          listeFichiers.value.push(fichier)
-          idsfichier.value.push(idfilesp)
-          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
-          dataForms.fichiers.push(tmpFichier)
-        }
-      }
-
-      const jfFichierCasArbre: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'document_arbre_pres_chantier')
-      if (jfFichierCasArbre !== undefined) {
-        const idfilesp: string = jfFichierCasArbre.toString()
-        const nomfilesp: string = 'Préavis Service des parcs et domaines'
-        if (idfilesp.trim() !== '') {
-          nombreFichiers.value++
-          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
-          listeFichiers.value.push(fichier)
-          idsfichier.value.push(idfilesp)
-          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
-          dataForms.fichiers.push(tmpFichier)
-        }
-      }
-
-      const jfFichierCasChgAffecLgm: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_changement_affectation_logement_document')
-      if (jfFichierCasChgAffecLgm !== undefined) {
-        const idfilesp: string = jfFichierCasChgAffecLgm.toString()
-        const nomfilesp: string = 'Préavis Office communal du logement'
-        if (idfilesp.trim() !== '') {
-          nombreFichiers.value++
-          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
-          listeFichiers.value.push(fichier)
-          idsfichier.value.push(idfilesp)
-          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
-          dataForms.fichiers.push(tmpFichier)
-        }
-      }
-
-      const jfFichierCasRenovToit: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_changement_renovation_toiture_document')
-      if (jfFichierCasRenovToit !== undefined) {
-        const idfilesp: string = jfFichierCasRenovToit.toString()
-        const nomfilesp: string = 'Préavis SIL - Division énergie - Rénovation toiture'
-        if (idfilesp.trim() !== '') {
-          nombreFichiers.value++
-          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
-          listeFichiers.value.push(fichier)
-          idsfichier.value.push(idfilesp)
-          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
-          dataForms.fichiers.push(tmpFichier)
-        }
-      }
-
-      const jfFichierCasPChaleurFor: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_installation_pompes_chaleur')
-      if (jfFichierCasPChaleurFor !== undefined) {
-        const idfilesp: string = jfFichierCasPChaleurFor.toString()
-        const nomfilesp: string = 'Formulaire annonce pompe à chaleur'
-        if (idfilesp.trim() !== '') {
-          nombreFichiers.value++
-          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
-          listeFichiers.value.push(fichier)
-          idsfichier.value.push(idfilesp)
-          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
-          dataForms.fichiers.push(tmpFichier)
-        }
-      }
-
-      const jfFichierCasPChaleurDoc: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_installation_pompes_chaleur_deux')
-      if (jfFichierCasPChaleurDoc !== undefined) {
-        const idfilesp: string = jfFichierCasPChaleurDoc.toString()
-        const nomfilesp: string = 'Documentation technique pompe à chaleur'
-        if (idfilesp.trim() !== '') {
-          nombreFichiers.value++
-          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
-          listeFichiers.value.push(fichier)
-          idsfichier.value.push(idfilesp)
-          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
-          dataForms.fichiers.push(tmpFichier)
-        }
-      }
-
-      const jfFichierCasDioxinePreavisFav: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_assainissement_terrain_pollue_dioxine_preavis_favorable_dge')
-      if (jfFichierCasDioxinePreavisFav !== undefined) {
-        const idfilesp: string = jfFichierCasDioxinePreavisFav.toString()
-        const nomfilesp: string = 'Préavis DGE dioxine'
-        if (idfilesp.trim() !== '') {
-          nombreFichiers.value++
-          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
-          listeFichiers.value.push(fichier)
-          idsfichier.value.push(idfilesp)
-          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
-          dataForms.fichiers.push(tmpFichier)
-        }
-      }
-
-      const jfFichierCasDioxinePlanEliminDechet: string | number | undefined = getDataContentByGroupAndVarId(jfFormsData, 'type_travaux', 'type_assainissement_terrain_pollue_dioxine_plan_elimination_dechets')
-      if (jfFichierCasDioxinePlanEliminDechet !== undefined) {
-        const idfilesp: string = jfFichierCasDioxinePlanEliminDechet.toString()
-        const nomfilesp: string = 'Plan d\'élimination des déchets'
-        if (idfilesp.trim() !== '') {
-          nombreFichiers.value++
-          const fichier: ListeFichiers = { idfichier: idfilesp, nomfichier: nomfilesp }
-          listeFichiers.value.push(fichier)
-          idsfichier.value.push(idfilesp)
-          const tmpFichier: Fichier = { idjf: idfilesp, filename: nomfilesp, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
-          dataForms.fichiers.push(tmpFichier)
-        }
-      }
-
-      //Fichiers du GRP_3
-      const gFichiers: Group | undefined = jfFormsData.data.group.find(g => g.id === "GRP_3")
-      if (gFichiers !== undefined) {
-        const vars = Array.isArray(gFichiers.var) ? gFichiers.var : [gFichiers.var]
-        const nbrPotentielFichiers: number = vars.length
-        for (let i: number = 0; i < nbrPotentielFichiers; i++) {
-          const idf: string | number | undefined = vars[i]?.content
-          const nomf: string | number | undefined = vars[i]?.id ?? '?'
-          if (idf !== undefined) {
-            const idfile: string = idf.toString()
-            const nomfile: string = nomf.toString()
-            if (idfile.trim() !== '') {
-              nombreFichiers.value++
-              const fichier: ListeFichiers = { idfichier: idfile, nomfichier: nomfile }
-              listeFichiers.value.push(fichier)
-              idsfichier.value.push(idfile)
-              const tmpFichier: Fichier = { idjf: idfile, filename: nomfile, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
-              dataForms.fichiers.push(tmpFichier)
-            }
+      //Fichiers
+      const ajoutFichiers = (ajfFichiers: string[], nomBase: string): void => {
+        ajfFichiers.forEach((idfile: string, index: number) => {
+          if (idfile.trim() === '') {
+            return
           }
-        }
+
+          const nomfile: string = ajfFichiers.length > 1 ? `${nomBase} ${index + 1}` : nomBase
+
+          nombreFichiers.value++
+          const fichier: ListeFichiers = { idfichier: idfile, nomfichier: nomfile }
+          listeFichiers.value.push(fichier)
+          idsfichier.value.push(idfile)
+          const tmpFichier: Fichier = { idjf: idfile, filename: nomfile, b64content: '', mimetype: '', size: 0, sha256: '', infoDoublon: '', idFamille: 0, idDocGo: 0, docGoLie: 1 }
+          dataForms.fichiers.push(tmpFichier)
+        })
       }
-    }
-    console.log('fichiers', dataForms.fichiers)
+
+      let ajfFichiers: string[] = []
+
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'accord_administration_ppe_copropriete_document')
+      ajoutFichiers(ajfFichiers, 'Accord de l\'administration PPE/copropriété')
+
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'upload_cas_un')
+      ajoutFichiers(ajfFichiers, 'Préavis DGIP-Monuments et sites')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'upload_cas_deux')
+      ajoutFichiers(ajfFichiers, 'Préavis délégation à la protection du patrimoine')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'document_arbre_pres_chantier')
+      ajoutFichiers(ajfFichiers, 'Préavis Service des parcs et domaines')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_panneaux_solaire_document')
+      ajoutFichiers(ajfFichiers, 'Formulaire panneaux solaires')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_panneaux_solaire_document_deux')
+      ajoutFichiers(ajfFichiers, 'Documentation technique panneaux solaires')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'type_travaux', 'type_assainissement_terrain_pollue_dioxine_preavis_favorable_dge')
+      ajoutFichiers(ajfFichiers, 'Préavis DGE dioxine')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'type_travaux', 'type_assainissement_terrain_pollue_dioxine_plan_elimination_dechets')
+      ajoutFichiers(ajfFichiers, 'Plan d\'élimination des déchets')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_remplacement_producteur_chaleur')
+      ajoutFichiers(ajfFichiers, 'Préavis SIL - Division énergie - Remplacement producteur de chaleur')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_changement_renovation_toiture_document')
+      ajoutFichiers(ajfFichiers, 'Préavis SIL - Division énergie - Rénovation toiture')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_changement_affectation_logement_document')
+      ajoutFichiers(ajfFichiers, 'Préavis Office communal du logement - Changement affectation logement')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_transformation_modifiant_nombre_logement')
+      ajoutFichiers(ajfFichiers, 'Préavis Office communal du logement - Transformation modifiant le nombre de logements')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_installation_pompes_chaleur')
+      ajoutFichiers(ajfFichiers, 'Formulaire annonce pompe à chaleur')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'type_travaux', 'type_travaux_installation_pompes_chaleur_deux')
+      ajoutFichiers(ajfFichiers, 'Documentation technique pompe à chaleur')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'document_a_joindre_a_la_demande', 'devis_travaux_document')
+      ajoutFichiers(ajfFichiers, 'Devis travaux')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'document_a_joindre_a_la_demande', 'photographie_avant_travaux_document')
+      ajoutFichiers(ajfFichiers, 'Photographie avant travaux')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'document_a_joindre_a_la_demande', 'extrait_cadastral_document')
+      ajoutFichiers(ajfFichiers, 'Extrait cadastral')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'document_a_joindre_a_la_demande', 'plans_coupes_esquisses_document')
+      ajoutFichiers(ajfFichiers, 'Plans, coupes, esquisses')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'document_a_joindre_a_la_demande', 'diagnostic_amiante_document')
+      ajoutFichiers(ajfFichiers, 'Diagnostic amiante')
+      
+      ajfFichiers = getIdFileByGroupAndVarId(jfFormsData, 'document_a_joindre_a_la_demande', 'autre_document_a_upload')
+      ajoutFichiers(ajfFichiers, 'Autre document')
+
+      console.log('fichiers', dataForms.fichiers)
+    }   
 
     if (dataForms.numeroDemande === '' || dataForms.status === '') {
       //Appel direct du formulaire, pas de uuid et status retourné avec la methode data de l'API (SOI...!!!)
