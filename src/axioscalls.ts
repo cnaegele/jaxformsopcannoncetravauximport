@@ -224,9 +224,12 @@ export async function getIdAffaireGoeland(server: string = '', page: string, idJ
 
 export async function getImportFormsData(server: string = '', page: string, jsonData: string = '{}'): Promise<ApiResponseIFD> {
     const urlifd: string = `${server}${page}`
-    const params = new URLSearchParams([['jsondata', jsonData]])
-    try {
-        const response: AxiosResponse<DataForms> = await axios.get(urlifd, { params })
+     try {
+        const response: AxiosResponse<DataForms> = await axios.post(urlifd, jsonData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
         const respData: ApiResponseIFD = response
         //console.log(respData)
         return respData

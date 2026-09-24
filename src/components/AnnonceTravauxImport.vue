@@ -508,6 +508,8 @@ const loadDataImport = async () => {
             messageErreur.value = dataImportPropose
         }
         jfFormsImportDataLoading.value = false
+    } else {
+        console.log("Erreur lors de la récupération des données d'importation", responseID) 
     }
 }
 
