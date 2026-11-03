@@ -205,6 +205,7 @@ interface GoFormsListe {
   localisation?: string
   descriptiontravaux?: string
   emaildemandeur?: string
+  teldemandeur?: string
 }
 
 interface Props {
@@ -299,11 +300,13 @@ const loadData = async () => {
               let localisationNumRue: string | number | undefined
               let descriptionTravaux: string | number | undefined
               let emailDemandeur: string | number | undefined
+              let telDemandeur: string | number | undefined
               if (jfFormsData !== undefined) {
                 localisationRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_rue') ?? '?'
                 localisationNumRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_numeroDeRue') ?? ''
                 descriptionTravaux = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'travaux_description') ?? '?'
                 emailDemandeur = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_suivi_demande', 'email') ?? '?'
+                telDemandeur = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_telephone_telephone_mobile') ?? '?'
               }
               //console.log(responseD)
               const goFormsListe: GoFormsListe = {
@@ -314,7 +317,8 @@ const loadData = async () => {
                 lastupdate: getListeFieldValue(therow, 'LastUpdate'),
                 localisation: `${localisationRue?.toString()} ${localisationNumRue?.toString()}`,
                 descriptiontravaux: descriptionTravaux?.toString(),
-                emaildemandeur: emailDemandeur?.toString()
+                emaildemandeur: emailDemandeur?.toString(),
+                teldemandeur: telDemandeur?.toString()
               }
               affFormsListe.value.push(goFormsListe)
             }
@@ -338,6 +342,7 @@ const headers = [
   { title: 'Localisation', key: 'localisation', sortable: true },
   { title: 'Description des travaux', key: 'descriptiontravaux', sortable: true },
   { title: 'Email demandeur', key: 'emaildemandeur', sortable: true },
+  { title: 'Tél. demandeur', key: 'teldemandeur', sortable: true },
   { title: 'Créé le', key: 'created', sortable: true },
   { title: 'Dernière mise à jour', key: 'lastupdate', sortable: true },
   { title: 'Actions', key: 'actions', sortable: false, align: 'center' as const }
