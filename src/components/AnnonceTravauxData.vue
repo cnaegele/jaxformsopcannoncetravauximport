@@ -300,7 +300,9 @@ const loadData = async () => {
         jfDemandeurNumero = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_numero')
         jfDemandeurNpa = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_npa')
         jfDemandeurLocalite = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_localite')
-        jfDemandeurTelephone = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_telephone_telephone_mobile')
+        //décembre 2026, lors de la prochaine mise en production, coordonnees_requerant_telephone_mobile -> telephone1
+        jfDemandeurTelephone = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'telephone1')
+            || getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_telephone_telephone_mobile')
         jfDemandeurEmail = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_email_proprietaire')
       }
 

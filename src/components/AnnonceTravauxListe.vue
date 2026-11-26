@@ -306,7 +306,9 @@ const loadData = async () => {
                 localisationNumRue = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'map_address_numeroDeRue') ?? ''
                 descriptionTravaux = getDataContentByGroupAndVarId(jfFormsData, 'Localisation_objet_concerne_travaux', 'travaux_description') ?? '?'
                 emailDemandeur = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_suivi_demande', 'email') ?? '?'
-                telDemandeur = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_telephone_telephone_mobile') ?? '?'
+                //décembre 2026, lors de la prochaine mise en production, coordonnees_telephone_telephone_mobile -> telephone1
+                telDemandeur = getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'telephone1')
+                    || getDataContentByGroupAndVarId(jfFormsData, 'coordonnees_du_formulaire', 'coordonnees_telephone_telephone_mobile')
               }
               //console.log(responseD)
               const goFormsListe: GoFormsListe = {
